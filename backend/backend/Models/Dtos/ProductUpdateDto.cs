@@ -1,0 +1,16 @@
+﻿namespace backend.Models.Dtos
+{
+    public class ProductUpdateDto
+    {
+        public string ProductName { get; set; }
+        public string Description { get; set; }
+        public string Image { get; set; }
+        public string Brand { get; set; }
+        public string Category { get; set; }
+        public string Size { get; set; }
+        public float Price { get; set; }
+        public float TotalRating { get; set; }
+        public int Quantity { get; set; }
+        public int NumOfReviews { get; set; }
+    }
+}
