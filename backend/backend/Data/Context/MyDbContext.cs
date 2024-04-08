@@ -40,7 +40,8 @@ namespace backend.Data.Context
         {
 
 
-
+            modelBuilder.Entity<ProductOrder>()
+        .HasKey(po => new { po.ProductId, po.OrderId });
         }
 
     }
