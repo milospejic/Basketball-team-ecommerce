@@ -6,7 +6,7 @@ namespace backend.Data.Repository
     {
         Task<IEnumerable<ProductOrderDto>> GetAllProductOrders();
         Task<ProductOrderDto> GetProductOrderById(Guid productId, Guid orderId);
-        Task<Guid> CreateProductOrder(ProductOrderCreateDto productOrderDto);
+        Task<ProductOrderDto> CreateProductOrder(ProductOrderCreateDto productOrderDto);
         // Task UpdateProductOrder(Guid productId, Guid orderId, ProductOrderUpdateDto productOrderDto);
         Task DeleteProductOrder(Guid productId, Guid orderId);
     }

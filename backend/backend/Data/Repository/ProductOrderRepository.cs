@@ -29,11 +29,14 @@ namespace backend.Data.Repository
             return mapper.Map<ProductOrderDto>(productOrder);
         }
 
-        public async Task CreateProductOrderAsync(ProductOrderCreateDto productOrderDto)
+        public async Task<ProductOrderDto> CreateProductOrder(ProductOrderCreateDto productOrderDto)
         {
             var productOrder = mapper.Map<ProductOrder>(productOrderDto);
             context.ProductOrderTable.Add(productOrder);
             await context.SaveChangesAsync();
+            return mapper.Map<ProductOrderDto>(productOrder);
+
+
         }
 
         public async Task UpdateProductOrder(Guid orderId, Guid productId, ProductOrderCreateDto productOrderDto)
@@ -60,20 +63,6 @@ namespace backend.Data.Repository
             await context.SaveChangesAsync();
         }
 
-        public Task<ProductOrderDto> GetProductOrderByIdAsync(Guid productOrderId)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<Guid> IProductOrderRepository.CreateProductOrder(ProductOrderCreateDto productOrderDto)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteProductOrderAsync(Guid productOrderId)
-        {
-            throw new NotImplementedException();
-        }
     }
 
 }

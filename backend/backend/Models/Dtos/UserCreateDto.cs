@@ -8,6 +8,6 @@
         public string Password { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string PhoneNumber { get; set; }
-        public AddressCreateDto Address { get; set; }
+        public AddressCreateDto? Address { get; set; }
     }
 }

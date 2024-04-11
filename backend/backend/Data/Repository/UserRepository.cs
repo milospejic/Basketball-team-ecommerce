@@ -20,12 +20,28 @@ namespace backend.Data.Repository
         public async Task<IEnumerable<UserDto>> GetAllUsers()
         {
             var users = await context.UserTable.ToListAsync();
+            foreach (var user in users)
+            {
+                var address = context.AddressTable.FirstOrDefault(f => f.AddressId == user.AddressId);
+                if (address != null)
+                {
+                    user.Address = address;
+                }
+            }
             return mapper.Map<IEnumerable<UserDto>>(users);
         }
 
         public async Task<UserDto> GetUserById(Guid userId)
         {
             var user = await context.UserTable.FindAsync(userId);
+            if (user != null)
+            {
+                var address = context.AddressTable.FirstOrDefault(f => f.AddressId == user.AddressId);
+                if (address != null)
+                {
+                    user.Address = address;
+                }
+            }
             return mapper.Map<UserDto>(user);
         }
 

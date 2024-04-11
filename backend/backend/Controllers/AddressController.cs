@@ -7,26 +7,26 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 public class AddressController : ControllerBase
 {
-    private readonly IAddressRepository _addressRepository;
-    private readonly IMapper _mapper;
+    private readonly IAddressRepository addressRepository;
+    private readonly IMapper mapper;
 
     public AddressController(IAddressRepository addressRepository, IMapper mapper)
     {
-        _addressRepository = addressRepository;
-        _mapper = mapper;
+        this.addressRepository = addressRepository;
+        this.mapper = mapper;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AddressDto>>> GetAllAddresses()
     {
-        var addresses = await _addressRepository.GetAllAddresss();
+        var addresses = await addressRepository.GetAllAddresss();
         return Ok(addresses);
     }
 
     [HttpGet("{id}")]
     public async Task<ActionResult<AddressDto>> GetAddressById(Guid id)
     {
-        var address = await _addressRepository.GetAddressById(id);
+        var address = await addressRepository.GetAddressById(id);
         if (address == null)
         {
             return NotFound();
@@ -38,7 +38,7 @@ public class AddressController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateAddress(AddressCreateDto addressDto)
     {
-        var addressId = await _addressRepository.CreateAddress(addressDto);
+        var addressId = await addressRepository.CreateAddress(addressDto);
         return Ok(addressId);
     }
 
@@ -47,7 +47,7 @@ public class AddressController : ControllerBase
     {
         try
         {
-            await _addressRepository.UpdateAddress(id, addressDto);
+            await addressRepository.UpdateAddress(id, addressDto);
             return Ok();
         }
         catch (ArgumentException ex)
@@ -61,7 +61,7 @@ public class AddressController : ControllerBase
     {
         try
         {
-            await _addressRepository.DeleteAddress(id);
+            await addressRepository.DeleteAddress(id);
             return NoContent();
         }
         catch (ArgumentException ex)

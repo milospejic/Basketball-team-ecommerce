@@ -20,12 +20,36 @@ namespace backend.Data.Repository
         public async Task<IEnumerable<OrderDto>> GetAllOrders()
         {
             var orders = await context.OrderTable.ToListAsync();
+            foreach (var order in orders)
+            {
+                var user = context.UserTable.FirstOrDefault(f => f.UserId == order.UserId);
+                if (user != null)
+                {
+                    order.User = user;
+                }
+                var productOrders = await context.ProductOrderTable.ToListAsync();
+                foreach(var productOrder in productOrders)
+                {
+                    var product = context.ProductTable.FirstOrDefault(f => f.ProductId == productOrder.ProductId);
+                    if (product != null) {
+                        order.Products.Add(mapper.Map<ProductDto>(product));
+                    }
+                }
+            }
             return mapper.Map<IEnumerable<OrderDto>>(orders);
         }
 
         public async Task<OrderDto> GetOrderById(Guid orderId)
         {
             var order = await context.OrderTable.FindAsync(orderId);
+            if (order != null)
+            {
+                var user = context.UserTable.FirstOrDefault(f => f.UserId == order.UserId);
+                if (user != null)
+                {
+                    order.User = user;
+                }
+            }
             return mapper.Map<OrderDto>(order);
         }
 
