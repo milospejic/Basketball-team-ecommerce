@@ -17,10 +17,10 @@ public class OrderController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrderes()
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
     {
-        var orderes = await orderRepository.GetAllOrders();
-        return Ok(orderes);
+        var orders = await orderRepository.GetAllOrders();
+        return Ok(orders);
     }
 
     [HttpGet("{id}")]

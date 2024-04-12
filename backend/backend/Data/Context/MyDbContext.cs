@@ -1,6 +1,7 @@
 ﻿using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Metadata;
 
 namespace backend.Data.Context
 {
@@ -42,6 +43,8 @@ namespace backend.Data.Context
 
             modelBuilder.Entity<ProductOrder>()
         .HasKey(po => new { po.ProductId, po.OrderId });
+            modelBuilder.Entity<Review>()
+        .ToTable(tb => tb.HasTrigger("RatingChange"));
         }
 
     }

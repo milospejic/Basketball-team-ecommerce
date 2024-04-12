@@ -1,4 +1,6 @@
-﻿namespace backend.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace backend.Models
 {
     public class Review
     {
@@ -9,5 +11,8 @@
         public Guid ProductId { get; set; }
         public User User { get; set; }
         public Product Product { get; set; }
+
+        [NotMapped]
+        public bool? IsDeleted { get; set; } = false;
     }
 }

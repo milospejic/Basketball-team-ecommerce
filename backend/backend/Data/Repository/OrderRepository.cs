@@ -19,24 +19,42 @@ namespace backend.Data.Repository
 
         public async Task<IEnumerable<OrderDto>> GetAllOrders()
         {
-            var orders = await context.OrderTable.ToListAsync();
-            foreach (var order in orders)
+
+    
+             var orders = await context.OrderTable.ToListAsync();
+             foreach (var order in orders)
+             {
+                 var user = context.UserTable.FirstOrDefault(f => f.UserId == order.UserId);
+                 if (user != null)
+                 {
+                     order.User = user;
+                 }
+                order.ProductsInOrder = new List<ProductsInOrderDto>();
+             }
+            var productOrders = await context.ProductOrderTable.ToListAsync();
+            foreach (var productOrder in productOrders)
             {
-                var user = context.UserTable.FirstOrDefault(f => f.UserId == order.UserId);
-                if (user != null)
-                {
-                    order.User = user;
-                }
-                var productOrders = await context.ProductOrderTable.ToListAsync();
-                foreach(var productOrder in productOrders)
-                {
-                    var product = context.ProductTable.FirstOrDefault(f => f.ProductId == productOrder.ProductId);
-                    if (product != null) {
-                        order.Products.Add(mapper.Map<ProductDto>(product));
+                foreach (var order in orders)
+                {        
+                    if (productOrder.OrderId==order.OrderId)
+                    {
+
+                        ProductsInOrderDto productInOrder = new ProductsInOrderDto();
+                        productInOrder.ProductId= productOrder.ProductId;
+                        productInOrder.Amount = productOrder.Amount;
+                        /*var product = context.ProductTable.FirstOrDefault(f => f.ProductId == productOrder.ProductId);
+                         if (product != null)
+                         {
+                             order.Products.Add(mapper.Map<ProductDto>(product));
+                         }
+                        */
+                        order.ProductsInOrder.Add(productInOrder);
                     }
+
                 }
             }
-            return mapper.Map<IEnumerable<OrderDto>>(orders);
+
+                return mapper.Map<IEnumerable<OrderDto>>(orders);
         }
 
         public async Task<OrderDto> GetOrderById(Guid orderId)
@@ -49,6 +67,25 @@ namespace backend.Data.Repository
                 {
                     order.User = user;
                 }
+                order.ProductsInOrder = new List<ProductsInOrderDto>();
+
+                var productOrders = await context.ProductOrderTable.ToListAsync();
+                foreach (var productOrder in productOrders)
+                {               
+                   if (productOrder.OrderId == order.OrderId)
+                   {
+                        ProductsInOrderDto productInOrder = new ProductsInOrderDto();
+                        productInOrder.ProductId = productOrder.ProductId;
+                        productInOrder.Amount = productOrder.Amount;
+                        /*var product = context.ProductTable.FirstOrDefault(f => f.ProductId == productOrder.ProductId);
+                        if (product != null)
+                        {
+                            order.Products.Add(mapper.Map<ProductDto>(product));
+                        }*/
+                        order.ProductsInOrder.Add(productInOrder);
+                    }
+               
+                }           
             }
             return mapper.Map<OrderDto>(order);
         }
@@ -56,6 +93,71 @@ namespace backend.Data.Repository
         public async Task<Guid> CreateOrder(OrderCreateDto orderDto)
         {
             var order = mapper.Map<Order>(orderDto);
+            order.OrderId = Guid.NewGuid();
+            order.OrderStatus = "Pending";
+            order.OrderDate = DateTime.Now;
+            order.NumberOfItems = 0;
+            order.TotalPrice = 0;
+            var today = DateTime.Today;
+            var user = context.UserTable.FirstOrDefault(f => f.UserId == order.UserId);
+            var userAge = today.Year - user.DateOfBirth.Year;
+            if (user.DateOfBirth.Date > today.AddYears(-userAge))
+            {
+                userAge--;
+            }            
+            foreach (var product in order.ProductsInOrder) {
+
+                /*ProductOrderRepository repository = new ProductOrderRepository(this.context,this.mapper);
+                ProductOrderCreateDto productOrderCreateDto = new ProductOrderCreateDto();
+                productOrderCreateDto.OrderId = order.OrderId;
+                productOrderCreateDto.ProductId = product.ProductId;
+                productOrderCreateDto.Amount = product.Amount;
+                repository.CreateProductOrder(productOrderCreateDto);*/
+                ProductOrder productOrder = new ProductOrder();
+                productOrder.OrderId = order.OrderId;
+                productOrder.ProductId = product.ProductId;
+                productOrder.Amount = product.Amount;
+                order.NumberOfItems = order.NumberOfItems + product.Amount;
+                context.ProductOrderTable.Add(productOrder);
+                var specificProduct = context.ProductTable.FirstOrDefault(f => f.ProductId == product.ProductId);
+                var discount = context.DiscountTable.FirstOrDefault(f => f.DiscountId == specificProduct.DiscountId);
+                specificProduct.Quantity = specificProduct.Quantity - product.Amount;
+                if (discount == null) {
+                    order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount;
+                } else {
+
+                    var discountAmount = double.Parse(discount.Percentage.TrimEnd('%')) / 100;
+                    if (discount.DiscountType == "13-18" && userAge >= 13 && userAge < 18)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * ( 1 - discountAmount );
+                    }
+                    else if (discount.DiscountType == "18-30" && userAge >= 18 && userAge < 30)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else if (discount.DiscountType == "30-45" && userAge >= 30 && userAge < 45)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else if (discount.DiscountType == "45-60" && userAge >= 45 && userAge < 60)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else if (discount.DiscountType == "60+" && userAge >= 60)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else if (discount.DiscountType == "All")
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount;
+                    }
+                }
+            }
+            
             context.OrderTable.Add(order);
             await context.SaveChangesAsync();
             return order.OrderId;
@@ -69,7 +171,89 @@ namespace backend.Data.Repository
                 throw new ArgumentException("Order not found");
             }
 
+            var productOrders = await context.ProductOrderTable.ToListAsync();
+            foreach (var productOrder in productOrders)
+            {
+                if(productOrder.OrderId == orderId)
+                {
+                    var specificProduct = context.ProductTable.FirstOrDefault(f => f.ProductId == productOrder.ProductId);
+                    if (specificProduct != null)
+                    {
+                        specificProduct.Quantity = specificProduct.Quantity + productOrder.Amount;
+                    }
+                    context.ProductOrderTable.Remove(productOrder);
+                }
+            }
+
             mapper.Map(orderDto, order);
+
+            
+            order.NumberOfItems = 0;
+            order.TotalPrice = 0;
+            var today = DateTime.Today;
+            var user = context.UserTable.FirstOrDefault(f => f.UserId == order.UserId);
+            var userAge = today.Year - user.DateOfBirth.Year;
+            if (user.DateOfBirth.Date > today.AddYears(-userAge))
+            {
+                userAge--;
+            }
+            foreach (var product in order.ProductsInOrder)
+            {
+
+                /*ProductOrderRepository repository = new ProductOrderRepository(this.context,this.mapper);
+                ProductOrderCreateDto productOrderCreateDto = new ProductOrderCreateDto();
+                productOrderCreateDto.OrderId = order.OrderId;
+                productOrderCreateDto.ProductId = product.ProductId;
+                productOrderCreateDto.Amount = product.Amount;
+                repository.CreateProductOrder(productOrderCreateDto);*/
+                ProductOrder productOrder = new ProductOrder();
+                productOrder.OrderId = order.OrderId;
+                productOrder.ProductId = product.ProductId;
+                productOrder.Amount = product.Amount;
+                order.NumberOfItems = order.NumberOfItems + product.Amount;
+                context.ProductOrderTable.Add(productOrder);
+                var specificProduct = context.ProductTable.FirstOrDefault(f => f.ProductId == product.ProductId);
+                var discount = context.DiscountTable.FirstOrDefault(f => f.DiscountId == specificProduct.DiscountId);
+                specificProduct.Quantity = specificProduct.Quantity - product.Amount;
+                if (discount == null)
+                {
+                    order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount;
+                }
+                else
+                {
+
+                    var discountAmount = double.Parse(discount.Percentage.TrimEnd('%')) / 100;
+                    if (discount.DiscountType == "13-18" && userAge >= 13 && userAge < 18)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else if (discount.DiscountType == "18-30" && userAge >= 18 && userAge < 30)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else if (discount.DiscountType == "30-45" && userAge >= 30 && userAge < 45)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else if (discount.DiscountType == "45-60" && userAge >= 45 && userAge < 60)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else if (discount.DiscountType == "60+" && userAge >= 60)
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else if (discount.DiscountType == "All")
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
+                    }
+                    else
+                    {
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount;
+                    }
+                }
+            }
+
             await context.SaveChangesAsync();
         }
 
@@ -79,6 +263,19 @@ namespace backend.Data.Repository
             if (order == null)
             {
                 throw new ArgumentException("Order not found");
+            }
+            var productOrders = await context.ProductOrderTable.ToListAsync();
+            foreach (var productOrder in productOrders)
+            {
+                if (productOrder.OrderId == orderId)
+                {
+                    var specificProduct = context.ProductTable.FirstOrDefault(f => f.ProductId == productOrder.ProductId);
+                    if (specificProduct != null)
+                    {
+                        specificProduct.Quantity = specificProduct.Quantity + productOrder.Amount;
+                    }
+                    context.ProductOrderTable.Remove(productOrder);
+                }
             }
 
             context.OrderTable.Remove(order);

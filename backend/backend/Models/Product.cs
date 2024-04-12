@@ -15,6 +15,5 @@
         public int NumOfReviews { get; set; }
         public Guid AdminId { get; set; }
         public Guid? DiscountId { get; set; }
-        public Discount Discount { get; set; }
     }
 }

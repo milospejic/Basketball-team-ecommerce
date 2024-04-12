@@ -14,7 +14,7 @@ namespace backend.Models
         public User User { get; set; }
 
         [NotMapped]
-        public List<ProductDto> Products { get; set; }
+        public List<ProductsInOrderDto> ProductsInOrder { get; set; }
     }
 
 }

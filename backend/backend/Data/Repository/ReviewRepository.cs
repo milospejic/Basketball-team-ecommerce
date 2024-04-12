@@ -45,7 +45,23 @@ namespace backend.Data.Repository
                 throw new ArgumentException("Review not found");
             }
 
+            var product = await context.ProductTable.FirstOrDefaultAsync(f => f.ProductId == review.ProductId);
+            if (product == null)
+            {
+                throw new ArgumentException("Product not found");
+            }
+
+            double oldRating = review.Rating;
+            double newRating = reviewDto.Rating;
+
+            // Calculate the new total rating
+            double numOfReviews = product.NumOfReviews;
+            product.TotalRating = (product.TotalRating * numOfReviews - oldRating + newRating) / numOfReviews;
+
+            // Update the review with the new data
             mapper.Map(reviewDto, review);
+
+            // Save changes
             await context.SaveChangesAsync();
         }
 
@@ -57,6 +73,12 @@ namespace backend.Data.Repository
                 throw new ArgumentException("Review not found");
             }
 
+            review.IsDeleted = true;
+            await context.SaveChangesAsync(); // Save changes to trigger the update in the database
+
+            // Now, the trigger will run and update the ProductTable
+
+            // Finally, remove the review from the database
             context.ReviewTable.Remove(review);
             await context.SaveChangesAsync();
         }
