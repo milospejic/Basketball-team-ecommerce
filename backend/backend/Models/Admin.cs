@@ -8,5 +8,6 @@
         public string AdminEmail { get; set; }
         public string AdminPassword { get; set; }
         public string AdminPhoneNumber { get; set; }
+        public string AdminSalt { get; set; }
     }
 }

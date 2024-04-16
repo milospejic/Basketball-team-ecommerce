@@ -9,5 +9,6 @@ namespace backend.Data.Repository
         Task<Guid> CreateAdmin(AdminCreateDto adminDto);
         Task UpdateAdmin(Guid adminId, AdminUpdateDto adminDto);
         Task DeleteAdmin(Guid adminId);
+        bool AdminWithCredentialsExists(string email, string password);
     }
 }

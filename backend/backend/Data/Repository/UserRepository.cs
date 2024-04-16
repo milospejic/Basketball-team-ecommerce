@@ -3,6 +3,7 @@ using backend.Data.Context;
 using backend.Models.Dtos;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace backend.Data.Repository
 {
@@ -10,6 +11,7 @@ namespace backend.Data.Repository
     {
         private readonly MyDbContext context;
         private readonly IMapper mapper;
+        private readonly static int iterations = 1000;
 
         public UserRepository(MyDbContext context, IMapper mapper)
         {
@@ -47,7 +49,10 @@ namespace backend.Data.Repository
 
         public async Task<Guid> CreateUser(UserCreateDto userDto)
         {
+            var (hashedPassword, salt) = HashPassword(userDto.Password);
             var user = mapper.Map<User>(userDto);
+            user.Salt = salt;
+            user.Password = hashedPassword;
             context.UserTable.Add(user);
             await context.SaveChangesAsync();
             return user.UserId;
@@ -75,6 +80,49 @@ namespace backend.Data.Repository
 
             context.UserTable.Remove(user);
             await context.SaveChangesAsync();
+        }
+
+        public bool UserWithCredentialsExists(string email, string password)
+        {
+            User user = context.UserTable.FirstOrDefault(u => u.Email == email);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            if (VerifyPassword(password, user.Password, user.Salt))
+            {
+                return true;
+            }
+            return false;
+        }
+
+
+        private Tuple<string, string> HashPassword(string password)
+        {
+            var sBytes = new byte[password.Length];
+            new RNGCryptoServiceProvider().GetNonZeroBytes(sBytes);
+            var salt = Convert.ToBase64String(sBytes);
+
+            var derivedBytes = new Rfc2898DeriveBytes(password, sBytes, iterations);
+
+            return new Tuple<string, string>
+            (
+                Convert.ToBase64String(derivedBytes.GetBytes(256)),
+                salt
+            );
+        }
+
+        public bool VerifyPassword(string password, string savedHash, string savedSalt)
+        {
+            var saltBytes = Convert.FromBase64String(savedSalt);
+            var rfc2898DeriveBytes = new Rfc2898DeriveBytes(password, saltBytes, iterations);
+            if (Convert.ToBase64String(rfc2898DeriveBytes.GetBytes(256)) == savedHash)
+            {
+                return true;
+            }
+            return false;
         }
     }
 

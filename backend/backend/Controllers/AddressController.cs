@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
 using backend.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+[Authorize]
 [Route("api/address")]
 [ApiController]
 public class AddressController : ControllerBase

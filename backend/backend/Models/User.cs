@@ -1,4 +1,6 @@
-﻿namespace backend.Models
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace backend.Models
 {
     public class User
     {
@@ -11,5 +13,7 @@
         public string PhoneNumber { get; set; }
         public Guid? AddressId { get; set; }
         public Address Address { get; set; }
+
+        public string Salt { get; set; }
     }
 }

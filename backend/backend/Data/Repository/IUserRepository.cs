@@ -1,4 +1,5 @@
-﻿using backend.Models.Dtos;
+﻿using backend.Models;
+using backend.Models.Dtos;
 
 namespace backend.Data.Repository
 {
@@ -9,5 +10,6 @@ namespace backend.Data.Repository
         Task<Guid> CreateUser(UserCreateDto userDto);
         Task UpdateUser(Guid userId, UserUpdateDto userDto);
         Task DeleteUser(Guid userId);
+        bool UserWithCredentialsExists(string email, string password);
     }
 }
