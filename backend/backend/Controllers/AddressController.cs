@@ -18,6 +18,7 @@ public class AddressController : ControllerBase
         this.mapper = mapper;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AddressDto>>> GetAllAddresses()
     {
@@ -25,6 +26,7 @@ public class AddressController : ControllerBase
         return Ok(addresses);
     }
 
+    [Authorize(Roles = "User,Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<AddressDto>> GetAddressById(Guid id)
     {
@@ -36,7 +38,7 @@ public class AddressController : ControllerBase
 
         return Ok(address);
     }
-
+    [Authorize(Roles = "User")]
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateAddress(AddressCreateDto addressDto)
     {
@@ -44,6 +46,7 @@ public class AddressController : ControllerBase
         return Ok(addressId);
     }
 
+    [Authorize(Roles = "User")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAddress(Guid id, AddressUpdateDto addressDto)
     {
@@ -58,6 +61,7 @@ public class AddressController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "User")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAddress(Guid id)
     {

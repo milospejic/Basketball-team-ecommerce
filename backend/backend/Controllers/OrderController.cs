@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
 using backend.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/order")]
@@ -16,13 +17,14 @@ public class OrderController : ControllerBase
         this.mapper = mapper;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
     {
         var orders = await orderRepository.GetAllOrders();
         return Ok(orders);
     }
-
+    [Authorize(Roles = "Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<OrderDto>> GetOrderById(Guid id)
     {
@@ -35,6 +37,7 @@ public class OrderController : ControllerBase
         return Ok(order);
     }
 
+    [Authorize(Roles = "User")]
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateOrder(OrderCreateDto orderDto)
     {
@@ -42,6 +45,7 @@ public class OrderController : ControllerBase
         return Ok(orderId);
     }
 
+    [Authorize(Roles = "User,Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateOrder(Guid id, OrderUpdateDto orderDto)
     {
@@ -55,7 +59,7 @@ public class OrderController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
-
+    [Authorize(Roles = "User")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteOrder(Guid id)
     {

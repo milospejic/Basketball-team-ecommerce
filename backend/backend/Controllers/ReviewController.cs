@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
 using backend.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/review")]
@@ -16,6 +17,7 @@ public class ReviewController : ControllerBase
         this.mapper = mapper;
     }
 
+    [Authorize(Roles = "User,Admin")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReviewes()
     {
@@ -23,6 +25,7 @@ public class ReviewController : ControllerBase
         return Ok(reviewes);
     }
 
+    [Authorize(Roles = "User,Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ReviewDto>> GetReviewById(Guid id)
     {
@@ -35,6 +38,7 @@ public class ReviewController : ControllerBase
         return Ok(review);
     }
 
+    [Authorize(Roles = "User")]
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateReview(ReviewCreateDto reviewDto)
     {
@@ -42,6 +46,7 @@ public class ReviewController : ControllerBase
         return Ok(reviewId);
     }
 
+    [Authorize(Roles = "User")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateReview(Guid id, ReviewUpdateDto reviewDto)
     {
@@ -56,6 +61,7 @@ public class ReviewController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "User")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteReview(Guid id)
     {

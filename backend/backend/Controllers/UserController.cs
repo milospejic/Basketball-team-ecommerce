@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
 using backend.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/user")]
@@ -16,6 +17,7 @@ public class UserController : ControllerBase
         this.mapper = mapper;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUseres()
     {
@@ -23,6 +25,7 @@ public class UserController : ControllerBase
         return Ok(useres);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUserById(Guid id)
     {
@@ -35,6 +38,7 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
+    [Authorize(Roles = "User")]
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateUser(UserCreateDto userDto)
     {
@@ -42,6 +46,7 @@ public class UserController : ControllerBase
         return Ok(userId);
     }
 
+    [Authorize(Roles = "User")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateUser(Guid id, UserUpdateDto userDto)
     {
@@ -56,6 +61,7 @@ public class UserController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "User")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(Guid id)
     {

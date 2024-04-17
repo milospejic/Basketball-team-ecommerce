@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
 using backend.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/discount")]
@@ -15,7 +16,7 @@ public class DiscountController : ControllerBase
         this.discountRepository = discountRepository;
         this.mapper = mapper;
     }
-
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DiscountDto>>> GetAllDiscountes()
     {
@@ -23,6 +24,7 @@ public class DiscountController : ControllerBase
         return Ok(discountes);
     }
 
+    [Authorize(Roles = "Admin,User")]
     [HttpGet("{id}")]
     public async Task<ActionResult<DiscountDto>> GetDiscountById(Guid id)
     {
@@ -35,6 +37,7 @@ public class DiscountController : ControllerBase
         return Ok(discount);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateDiscount(DiscountCreateDto discountDto)
     {
@@ -42,6 +45,7 @@ public class DiscountController : ControllerBase
         return Ok(discountId);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateDiscount(Guid id, DiscountUpdateDto discountDto)
     {
@@ -56,6 +60,7 @@ public class DiscountController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteDiscount(Guid id)
     {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
 using backend.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/productOrder")]
@@ -16,6 +17,7 @@ public class ProductOrderController : ControllerBase
         this.mapper = mapper;
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProductOrderDto>>> GetAllProductOrderes()
     {
@@ -23,6 +25,7 @@ public class ProductOrderController : ControllerBase
         return Ok(productOrderes);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductOrderDto>> GetProductOrderById(Guid id, Guid id2)
     {
@@ -35,6 +38,8 @@ public class ProductOrderController : ControllerBase
         return Ok(productOrder);
     }
 
+
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateProductOrder(ProductOrderCreateDto productOrderDto)
     {
@@ -42,20 +47,22 @@ public class ProductOrderController : ControllerBase
         return Ok(productOrderId);
     }
 
-   /* [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateProductOrder(Guid id, Guid id2, ProductOrderUpdateDto productOrderDto)
-    {
-        try
-        {
-            await productOrderRepository.UpdateProductOrder(id,id2, productOrderDto);
-            return Ok();
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }*/
+    /* [HttpPut("{id}")]
+     public async Task<IActionResult> UpdateProductOrder(Guid id, Guid id2, ProductOrderUpdateDto productOrderDto)
+     {
+         try
+         {
+             await productOrderRepository.UpdateProductOrder(id,id2, productOrderDto);
+             return Ok();
+         }
+         catch (ArgumentException ex)
+         {
+             return BadRequest(ex.Message);
+         }
+     }*/
 
+
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProductOrder(Guid id, Guid id2)
     {
