@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
+using backend.Models;
 using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,12 +20,20 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUseres()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
     {
-        var useres = await userRepository.GetAllUsers();
-        return Ok(useres);
+        var users = await userRepository.GetAllUsers();
+        if (users == null || users.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(users);
     }
 
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [Authorize(Roles = "Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUserById(Guid id)
@@ -40,6 +49,9 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = "User")]
     [HttpPost]
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateUser(UserCreateDto userDto)
     {
         var userId = await userRepository.CreateUser(userDto);
@@ -48,8 +60,16 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = "User")]
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateUser(Guid id, UserUpdateDto userDto)
     {
+        var oldUser = userRepository.GetUserById(id);
+        if (oldUser == null)
+        {
+            return NotFound();
+        }
         try
         {
             await userRepository.UpdateUser(id, userDto);
@@ -63,8 +83,16 @@ public class UserController : ControllerBase
 
     [Authorize(Roles = "User")]
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
+        var user = userRepository.GetUserById(id);
+        if (user == null)
+        {
+            return NotFound();
+        }
         try
         {
             await userRepository.DeleteUser(id);

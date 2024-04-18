@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
+using backend.Models;
 using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,12 +20,20 @@ public class ReviewController : ControllerBase
 
     [Authorize(Roles = "User,Admin")]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReviewes()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReviews()
     {
-        var reviewes = await reviewRepository.GetAllReviews();
-        return Ok(reviewes);
+        var reviews = await reviewRepository.GetAllReviews();
+        if (reviews == null || reviews.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(reviews);
     }
 
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [Authorize(Roles = "User,Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ReviewDto>> GetReviewById(Guid id)
@@ -40,6 +49,9 @@ public class ReviewController : ControllerBase
 
     [Authorize(Roles = "User")]
     [HttpPost]
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateReview(ReviewCreateDto reviewDto)
     {
         var reviewId = await reviewRepository.CreateReview(reviewDto);
@@ -48,8 +60,16 @@ public class ReviewController : ControllerBase
 
     [Authorize(Roles = "User")]
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateReview(Guid id, ReviewUpdateDto reviewDto)
     {
+        var oldReview = reviewRepository.GetReviewById(id);
+        if (oldReview == null)
+        {
+            return NotFound();
+        }
         try
         {
             await reviewRepository.UpdateReview(id, reviewDto);
@@ -63,8 +83,16 @@ public class ReviewController : ControllerBase
 
     [Authorize(Roles = "User")]
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteReview(Guid id)
     {
+        var review = reviewRepository.GetReviewById(id);
+        if (review == null)
+        {
+            return NotFound();
+        }
         try
         {
             await reviewRepository.DeleteReview(id);

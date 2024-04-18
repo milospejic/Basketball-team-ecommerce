@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
+using backend.Models;
 using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +20,20 @@ public class OrderController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
     {
         var orders = await orderRepository.GetAllOrders();
+        if (orders == null || orders.Count() == 0)
+        {
+            return NoContent();
+        }
         return Ok(orders);
     }
+
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [Authorize(Roles = "Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<OrderDto>> GetOrderById(Guid id)
@@ -39,6 +49,9 @@ public class OrderController : ControllerBase
 
     [Authorize(Roles = "User")]
     [HttpPost]
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateOrder(OrderCreateDto orderDto)
     {
         var orderId = await orderRepository.CreateOrder(orderDto);
@@ -47,8 +60,16 @@ public class OrderController : ControllerBase
 
     [Authorize(Roles = "User,Admin")]
     [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateOrder(Guid id, OrderUpdateDto orderDto)
     {
+        var oldOrder = orderRepository.GetOrderById(id);
+        if (oldOrder == null)
+        {
+            return NotFound();
+        }
         try
         {
             await orderRepository.UpdateOrder(id, orderDto);
@@ -61,8 +82,16 @@ public class OrderController : ControllerBase
     }
     [Authorize(Roles = "User")]
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteOrder(Guid id)
     {
+        var order = orderRepository.GetOrderById(id);
+        if (order == null)
+        {
+            return NotFound();
+        }
         try
         {
             await orderRepository.DeleteOrder(id);

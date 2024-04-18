@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
+using backend.Models;
 using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,12 +20,20 @@ public class ProductOrderController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProductOrderDto>>> GetAllProductOrderes()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<ProductOrderDto>>> GetAllProductOrders()
     {
-        var productOrderes = await productOrderRepository.GetAllProductOrders();
-        return Ok(productOrderes);
+        var productOrders = await productOrderRepository.GetAllProductOrders();
+        if (productOrders == null || productOrders.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(productOrders);
     }
 
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [Authorize(Roles = "Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductOrderDto>> GetProductOrderById(Guid id, Guid id2)
@@ -41,6 +50,9 @@ public class ProductOrderController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPost]
+    [Consumes("application/json")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateProductOrder(ProductOrderCreateDto productOrderDto)
     {
         var productOrderId = await productOrderRepository.CreateProductOrder(productOrderDto);
@@ -48,8 +60,16 @@ public class ProductOrderController : ControllerBase
     }
 
     /* [HttpPut("{id}")]
+     * [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
      public async Task<IActionResult> UpdateProductOrder(Guid id, Guid id2, ProductOrderUpdateDto productOrderDto)
      {
+        var oldProductOrder = productOrderRepository.GetProductOrderById(id,id2);
+        if (oldProductOrder == null)
+        {
+            return NotFound();
+        }
          try
          {
              await productOrderRepository.UpdateProductOrder(id,id2, productOrderDto);
@@ -64,8 +84,16 @@ public class ProductOrderController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteProductOrder(Guid id, Guid id2)
     {
+        var productOrder = productOrderRepository.GetProductOrderById(id,id2);
+        if (productOrder == null)
+        {
+            return NotFound();
+        }
         try
         {
             await productOrderRepository.DeleteProductOrder(id, id2    );
