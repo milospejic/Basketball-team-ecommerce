@@ -14,7 +14,7 @@ namespace backend.Models.Dtos
         public double TotalRating { get; set; }
         public int Quantity { get; set; }
         public int NumOfReviews { get; set; }
-        public Guid AdminId { get; set; }
+       // public Guid AdminId { get; set; }
         public Guid? DiscountId { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

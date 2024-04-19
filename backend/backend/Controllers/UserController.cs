@@ -4,6 +4,7 @@ using backend.Models;
 using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [Route("api/user")]
 [ApiController]
@@ -47,13 +48,18 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    [Authorize(Roles = "User")]
+    [AllowAnonymous]
     [HttpPost]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateUser(UserCreateDto userDto)
     {
+        if(userRepository.GetUserByEmail(userDto.Email) != null)
+        {
+            return Conflict("User with that email already exists");
+        }
         var userId = await userRepository.CreateUser(userDto);
         return Ok(userId);
     }
@@ -102,5 +108,18 @@ public class UserController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+    }
+
+
+    [HttpGet("current-user")]
+    public IActionResult GetCurrentUser()
+    {
+        var userEmail = HttpContext.User.FindFirstValue(ClaimTypes.Email);
+
+ 
+        var userRole = HttpContext.User.FindFirstValue(ClaimTypes.Role);
+
+
+        return Ok(new { Email = userEmail, Role = userRole });
     }
 }

@@ -4,6 +4,7 @@ using backend.Models;
 using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [Route("api/order")]
 [ApiController]
@@ -11,11 +12,13 @@ public class OrderController : ControllerBase
 {
     private readonly IOrderRepository orderRepository;
     private readonly IMapper mapper;
+    private readonly IUserRepository userRepository;
 
-    public OrderController(IOrderRepository orderRepository, IMapper mapper)
+    public OrderController(IOrderRepository orderRepository, IMapper mapper, IUserRepository userRepository)
     {
         this.orderRepository = orderRepository;
         this.mapper = mapper;
+        this.userRepository= userRepository;
     }
 
     [Authorize(Roles = "Admin")]
@@ -54,7 +57,10 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateOrder(OrderCreateDto orderDto)
     {
-        var orderId = await orderRepository.CreateOrder(orderDto);
+
+        
+        var user = userRepository.GetUserByEmail(User.FindFirst(ClaimTypes.Email)?.Value);
+        var orderId = await orderRepository.CreateOrder(orderDto, user.UserId);
         return Ok(orderId);
     }
 
@@ -101,5 +107,19 @@ public class OrderController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    [Authorize(Roles = "User")]
+    [HttpGet("user/{userId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrdersForUser(Guid userId)
+    {
+        var orders = await orderRepository.GetOrdersByUserId(userId);
+        if (orders == null || orders.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(orders);
     }
 }

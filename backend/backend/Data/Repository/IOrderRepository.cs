@@ -6,8 +6,10 @@ namespace backend.Data.Repository
     {
         Task<IEnumerable<OrderDto>> GetAllOrders();
         Task<OrderDto> GetOrderById(Guid orderId);
-        Task<Guid> CreateOrder(OrderCreateDto orderDto);
+        Task<Guid> CreateOrder(OrderCreateDto orderDto, Guid userId);
         Task UpdateOrder(Guid orderId, OrderUpdateDto orderDto);
         Task DeleteOrder(Guid orderId);
+
+        Task<IEnumerable<OrderDto>> GetOrdersByUserId(Guid userId);
     }
 }

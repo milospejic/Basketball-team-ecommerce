@@ -29,9 +29,10 @@ namespace backend.Data.Repository
             return mapper.Map<ProductDto>(product);
         }
 
-        public async Task<Guid> CreateProduct(ProductCreateDto productDto)
+        public async Task<Guid> CreateProduct(ProductCreateDto productDto, Guid adminId)
         {
             var product = mapper.Map<Product>(productDto);
+            product.AdminId = adminId;
             context.ProductTable.Add(product);
             await context.SaveChangesAsync();
             return product.ProductId;
@@ -61,6 +62,75 @@ namespace backend.Data.Repository
             await context.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<ProductDto>> GetProductsByAdminId(Guid adminId)
+        {
+            var products = await context.ProductTable.ToListAsync();
+            List<Product> returnProducts = new List<Product>();
+            foreach (var product in products)
+            {
+                if (product.AdminId == adminId)
+                {
+                    returnProducts.Add(product);
+                }
+            }
+            return mapper.Map<IEnumerable<ProductDto>>(returnProducts);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsByName(string productName)
+        {
+            var products = await context.ProductTable.ToListAsync();
+            List<Product> returnProducts = new List<Product>();
+            foreach (var product in products)
+            {
+                if (product.ProductName == productName)
+                {
+                    returnProducts.Add(product);
+                }
+            }
+            return mapper.Map<IEnumerable<ProductDto>>(returnProducts);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsByBrand(string brand)
+        {
+            var products = await context.ProductTable.ToListAsync();
+            List<Product> returnProducts = new List<Product>();
+            foreach (var product in products)
+            {
+                if (product.Brand == brand)
+                {
+                    returnProducts.Add(product);
+                }
+            }
+            return mapper.Map<IEnumerable<ProductDto>>(returnProducts);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsByCategory(string category)
+        {
+            var products = await context.ProductTable.ToListAsync();
+            List<Product> returnProducts = new List<Product>();
+            foreach (var product in products)
+            {
+                if (product.Category == category)
+                {
+                    returnProducts.Add(product);
+                }
+            }
+            return mapper.Map<IEnumerable<ProductDto>>(returnProducts);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsBySize(string size)
+        {
+            var products = await context.ProductTable.ToListAsync();
+            List<Product> returnProducts = new List<Product>();
+            foreach (var product in products)
+            {
+                if (product.Size == size)
+                {
+                    returnProducts.Add(product);
+                }
+            }
+            return mapper.Map<IEnumerable<ProductDto>>(returnProducts);
+        }
     }
 
 }

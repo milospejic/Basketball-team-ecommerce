@@ -29,9 +29,10 @@ namespace backend.Data.Repository
             return mapper.Map<ReviewDto>(review);
         }
 
-        public async Task<Guid> CreateReview(ReviewCreateDto reviewDto)
+        public async Task<Guid> CreateReview(ReviewCreateDto reviewDto, Guid userId)
         {
             var review = mapper.Map<Review>(reviewDto);
+            review.UserId = userId;
             context.ReviewTable.Add(review);
             await context.SaveChangesAsync();
             return review.ReviewId;
@@ -54,14 +55,14 @@ namespace backend.Data.Repository
             double oldRating = review.Rating;
             double newRating = reviewDto.Rating;
 
-            // Calculate the new total rating
+            
             double numOfReviews = product.NumOfReviews;
             product.TotalRating = (product.TotalRating * numOfReviews - oldRating + newRating) / numOfReviews;
 
-            // Update the review with the new data
+            
             mapper.Map(reviewDto, review);
 
-            // Save changes
+            
             await context.SaveChangesAsync();
         }
 
@@ -74,13 +75,39 @@ namespace backend.Data.Repository
             }
 
             review.IsDeleted = true;
-            await context.SaveChangesAsync(); // Save changes to trigger the update in the database
+            await context.SaveChangesAsync(); 
 
-            // Now, the trigger will run and update the ProductTable
-
-            // Finally, remove the review from the database
+           
             context.ReviewTable.Remove(review);
             await context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<ReviewDto>> GetReviewsByProductId(Guid productId)
+        {
+            var reviews = await context.ReviewTable.ToListAsync();
+            List<Review> returnReviews = new List<Review>();
+            foreach (var review in reviews)
+            {
+                if (review.ProductId == productId)
+                {
+                    returnReviews.Add(review);
+                }
+            }
+            return mapper.Map<IEnumerable<ReviewDto>>(returnReviews);
+        }
+
+        public async Task<IEnumerable<ReviewDto>> GetReviewsByUserId(Guid userId)
+        {
+            var reviews = await context.ReviewTable.ToListAsync();
+            List<Review> returnReviews = new List<Review>();
+            foreach (var review in reviews)
+            {
+                if (review.UserId == userId)
+                {
+                    returnReviews.Add(review);
+                }
+            }
+            return mapper.Map<IEnumerable<ReviewDto>>(returnReviews);
         }
     }
 

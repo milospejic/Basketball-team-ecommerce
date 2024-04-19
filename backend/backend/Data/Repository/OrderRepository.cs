@@ -3,6 +3,7 @@ using backend.Data.Context;
 using backend.Models.Dtos;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace backend.Data.Repository
 {
@@ -20,27 +21,27 @@ namespace backend.Data.Repository
         public async Task<IEnumerable<OrderDto>> GetAllOrders()
         {
 
-    
-             var orders = await context.OrderTable.ToListAsync();
-             foreach (var order in orders)
-             {
-                 var user = context.UserTable.FirstOrDefault(f => f.UserId == order.UserId);
-                 if (user != null)
-                 {
-                     order.User = user;
-                 }
+
+            var orders = await context.OrderTable.ToListAsync();
+            foreach (var order in orders)
+            {
+                var user = context.UserTable.FirstOrDefault(f => f.UserId == order.UserId);
+                if (user != null)
+                {
+                    order.User = user;
+                }
                 order.ProductsInOrder = new List<ProductsInOrderDto>();
-             }
+            }
             var productOrders = await context.ProductOrderTable.ToListAsync();
             foreach (var productOrder in productOrders)
             {
                 foreach (var order in orders)
-                {        
-                    if (productOrder.OrderId==order.OrderId)
+                {
+                    if (productOrder.OrderId == order.OrderId)
                     {
 
                         ProductsInOrderDto productInOrder = new ProductsInOrderDto();
-                        productInOrder.ProductId= productOrder.ProductId;
+                        productInOrder.ProductId = productOrder.ProductId;
                         productInOrder.Amount = productOrder.Amount;
                         /*var product = context.ProductTable.FirstOrDefault(f => f.ProductId == productOrder.ProductId);
                          if (product != null)
@@ -54,7 +55,7 @@ namespace backend.Data.Repository
                 }
             }
 
-                return mapper.Map<IEnumerable<OrderDto>>(orders);
+            return mapper.Map<IEnumerable<OrderDto>>(orders);
         }
 
         public async Task<OrderDto> GetOrderById(Guid orderId)
@@ -71,9 +72,9 @@ namespace backend.Data.Repository
 
                 var productOrders = await context.ProductOrderTable.ToListAsync();
                 foreach (var productOrder in productOrders)
-                {               
-                   if (productOrder.OrderId == order.OrderId)
-                   {
+                {
+                    if (productOrder.OrderId == order.OrderId)
+                    {
                         ProductsInOrderDto productInOrder = new ProductsInOrderDto();
                         productInOrder.ProductId = productOrder.ProductId;
                         productInOrder.Amount = productOrder.Amount;
@@ -84,16 +85,17 @@ namespace backend.Data.Repository
                         }*/
                         order.ProductsInOrder.Add(productInOrder);
                     }
-               
-                }           
+
+                }
             }
             return mapper.Map<OrderDto>(order);
         }
 
-        public async Task<Guid> CreateOrder(OrderCreateDto orderDto)
+        public async Task<Guid> CreateOrder(OrderCreateDto orderDto, Guid userId)
         {
             var order = mapper.Map<Order>(orderDto);
             order.OrderId = Guid.NewGuid();
+            order.UserId = userId;
             order.OrderStatus = "Pending";
             order.OrderDate = DateTime.Now;
             order.NumberOfItems = 0;
@@ -104,8 +106,9 @@ namespace backend.Data.Repository
             if (user.DateOfBirth.Date > today.AddYears(-userAge))
             {
                 userAge--;
-            }            
-            foreach (var product in order.ProductsInOrder) {
+            }
+            foreach (var product in order.ProductsInOrder)
+            {
 
                 /*ProductOrderRepository repository = new ProductOrderRepository(this.context,this.mapper);
                 ProductOrderCreateDto productOrderCreateDto = new ProductOrderCreateDto();
@@ -122,14 +125,17 @@ namespace backend.Data.Repository
                 var specificProduct = context.ProductTable.FirstOrDefault(f => f.ProductId == product.ProductId);
                 var discount = context.DiscountTable.FirstOrDefault(f => f.DiscountId == specificProduct.DiscountId);
                 specificProduct.Quantity = specificProduct.Quantity - product.Amount;
-                if (discount == null) {
+                if (discount == null)
+                {
                     order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount;
-                } else {
+                }
+                else
+                {
 
                     var discountAmount = double.Parse(discount.Percentage.TrimEnd('%')) / 100;
                     if (discount.DiscountType == "13-18" && userAge >= 13 && userAge < 18)
                     {
-                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * ( 1 - discountAmount );
+                        order.TotalPrice = order.TotalPrice + specificProduct.Price * product.Amount * (1 - discountAmount);
                     }
                     else if (discount.DiscountType == "18-30" && userAge >= 18 && userAge < 30)
                     {
@@ -157,7 +163,7 @@ namespace backend.Data.Repository
                     }
                 }
             }
-            
+
             context.OrderTable.Add(order);
             await context.SaveChangesAsync();
             return order.OrderId;
@@ -174,7 +180,7 @@ namespace backend.Data.Repository
             var productOrders = await context.ProductOrderTable.ToListAsync();
             foreach (var productOrder in productOrders)
             {
-                if(productOrder.OrderId == orderId)
+                if (productOrder.OrderId == orderId)
                 {
                     var specificProduct = context.ProductTable.FirstOrDefault(f => f.ProductId == productOrder.ProductId);
                     if (specificProduct != null)
@@ -187,7 +193,7 @@ namespace backend.Data.Repository
 
             mapper.Map(orderDto, order);
 
-            
+
             order.NumberOfItems = 0;
             order.TotalPrice = 0;
             var today = DateTime.Today;
@@ -280,6 +286,47 @@ namespace backend.Data.Repository
 
             context.OrderTable.Remove(order);
             await context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<OrderDto>> GetOrdersByUserId(Guid userId)
+        {
+
+            var orders = await context.OrderTable.ToListAsync();
+            foreach (var order in orders)
+            {
+                var user = context.UserTable.FirstOrDefault(f => f.UserId == order.UserId);
+                if (user != null)
+                {
+                    order.User = user;
+                }
+                order.ProductsInOrder = new List<ProductsInOrderDto>();
+            }
+            var productOrders = await context.ProductOrderTable.ToListAsync();
+            foreach (var productOrder in productOrders)
+            {
+                foreach (var order in orders)
+                {
+                    if (productOrder.OrderId == order.OrderId)
+                    {
+
+                        ProductsInOrderDto productInOrder = new ProductsInOrderDto();
+                        productInOrder.ProductId = productOrder.ProductId;
+                        productInOrder.Amount = productOrder.Amount;
+                        
+                        order.ProductsInOrder.Add(productInOrder);
+                    }
+
+                }
+            }
+            List<Order> returnOrders = new List<Order>();
+            foreach (var order in orders)
+            {
+                if(order.UserId == userId)
+                {
+                    returnOrders.Add(order);
+                }
+            }
+            return mapper.Map<IEnumerable<OrderDto>>(returnOrders);
         }
     }
 

@@ -4,6 +4,7 @@ using backend.Models;
 using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [Route("api/product")]
 [ApiController]
@@ -11,11 +12,12 @@ public class ProductController : ControllerBase
 {
     private readonly IProductRepository productRepository;
     private readonly IMapper mapper;
-
-    public ProductController(IProductRepository productRepository, IMapper mapper)
+    private readonly IAdminRepository adminRepository;
+    public ProductController(IProductRepository productRepository, IMapper mapper, IAdminRepository adminRepository)
     {
         this.productRepository = productRepository;
         this.mapper = mapper;
+        this.adminRepository = adminRepository;
     }
 
     [HttpGet]
@@ -55,7 +57,8 @@ public class ProductController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateProduct(ProductCreateDto productDto)
     {
-        var productId = await productRepository.CreateProduct(productDto);
+        var admin = adminRepository.GetAdminByEmail(User.FindFirst(ClaimTypes.Email)?.Value);
+        var productId = await productRepository.CreateProduct(productDto, admin.AdminId);
         return Ok(productId);
     }
 
@@ -105,5 +108,75 @@ public class ProductController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("admin/{adminId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllProductsForAdmin(Guid adminId)
+    {
+        var products = await productRepository.GetProductsByAdminId(adminId);
+        if (products == null || products.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(products);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("name")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllProductsByName(string productName)
+    {
+        var products = await productRepository.GetProductsByName(productName);
+        if (products == null || products.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(products);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("category")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllProductsByCategory(string category)
+    {
+        var products = await productRepository.GetProductsByCategory(category);
+        if (products == null || products.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(products);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("brand")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllProductsByBrand(string brand)
+    {
+        var products = await productRepository.GetProductsByBrand(brand);
+        if (products == null || products.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(products);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("size")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllProductsBySize(string size)
+    {
+        var products = await productRepository.GetProductsBySize(size);
+        if (products == null || products.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(products);
     }
 }

@@ -1,4 +1,5 @@
-﻿using backend.Models.Dtos;
+﻿using backend.Models;
+using backend.Models.Dtos;
 
 namespace backend.Data.Repository
 {
@@ -10,5 +11,7 @@ namespace backend.Data.Repository
         Task UpdateAdmin(Guid adminId, AdminUpdateDto adminDto);
         Task DeleteAdmin(Guid adminId);
         bool AdminWithCredentialsExists(string email, string password);
+
+        Admin GetAdminByEmail(string email);
     }
 }

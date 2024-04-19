@@ -107,5 +107,14 @@ namespace backend.Data.Repository
             return false;
         }
 
+        public Admin GetAdminByEmail(string email)
+        {
+            var admin = context.AdminTable.FirstOrDefault(a => a.AdminEmail == email);
+            if (admin == null)
+            {
+                return null;
+            }
+            return admin;
+        }
     }
 }

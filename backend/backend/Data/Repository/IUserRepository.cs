@@ -1,5 +1,6 @@
 ﻿using backend.Models;
 using backend.Models.Dtos;
+using System.Security.Claims;
 
 namespace backend.Data.Repository
 {
@@ -11,5 +12,8 @@ namespace backend.Data.Repository
         Task UpdateUser(Guid userId, UserUpdateDto userDto);
         Task DeleteUser(Guid userId);
         bool UserWithCredentialsExists(string email, string password);
+        User GetCurrentUser(ClaimsPrincipal user);
+
+        User GetUserByEmail(string email);
     }
 }

@@ -4,6 +4,7 @@ using backend.Models;
 using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [Route("api/review")]
 [ApiController]
@@ -11,11 +12,12 @@ public class ReviewController : ControllerBase
 {
     private readonly IReviewRepository reviewRepository;
     private readonly IMapper mapper;
-
-    public ReviewController(IReviewRepository reviewRepository, IMapper mapper)
+    private readonly IUserRepository userRepository;
+    public ReviewController(IReviewRepository reviewRepository, IMapper mapper, IUserRepository userRepository)
     {
         this.reviewRepository = reviewRepository;
         this.mapper = mapper;
+        this.userRepository = userRepository;
     }
 
     [Authorize(Roles = "User,Admin")]
@@ -54,7 +56,8 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateReview(ReviewCreateDto reviewDto)
     {
-        var reviewId = await reviewRepository.CreateReview(reviewDto);
+        var user = userRepository.GetUserByEmail(User.FindFirst(ClaimTypes.Email)?.Value);
+        var reviewId = await reviewRepository.CreateReview(reviewDto,user.UserId);
         return Ok(reviewId);
     }
 
@@ -102,5 +105,33 @@ public class ReviewController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    [AllowAnonymous]
+    [HttpGet("product/{productId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllReviewsForProduct(Guid productId)
+    {
+        var reviews = await reviewRepository.GetReviewsByProductId(productId);
+        if (reviews == null || reviews.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(reviews);
+    }
+
+    [Authorize(Roles = "User,Admin")]
+    [HttpGet("user/{userId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllReviewsForUser(Guid userId)
+    {
+        var reviews = await reviewRepository.GetReviewsByUserId(userId);
+        if (reviews == null || reviews.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(reviews);
     }
 }

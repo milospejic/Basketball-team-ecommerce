@@ -4,6 +4,9 @@ using backend.Models.Dtos;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace backend.Data.Repository
 {
@@ -123,6 +126,23 @@ namespace backend.Data.Repository
                 return true;
             }
             return false;
+        }
+
+        public User GetCurrentUser(ClaimsPrincipal user)
+        {
+            var userEmail = user.FindFirstValue(ClaimTypes.Email);
+
+            return context.UserTable.FirstOrDefault(u => u.Email == userEmail);
+        }
+
+        public User GetUserByEmail(string email)
+        {
+            var user = context.UserTable.FirstOrDefault(u => u.Email == email);
+            if(user == null)
+            {
+                return null;
+            }
+            return user;
         }
     }
 

@@ -6,8 +6,15 @@ namespace backend.Data.Repository
     {
         Task<IEnumerable<ProductDto>> GetAllProducts();
         Task<ProductDto> GetProductById(Guid productId);
-        Task<Guid> CreateProduct(ProductCreateDto productDto);
+        Task<Guid> CreateProduct(ProductCreateDto productDto, Guid adminId);
         Task UpdateProduct(Guid productId, ProductUpdateDto productDto);
         Task DeleteProduct(Guid productId);
+        
+        Task<IEnumerable<ProductDto>> GetProductsByAdminId(Guid adminId);
+        Task<IEnumerable<ProductDto>> GetProductsByName(string productName);
+        Task<IEnumerable<ProductDto>> GetProductsByBrand(string brand);
+        Task<IEnumerable<ProductDto>> GetProductsByCategory(string category);
+        Task<IEnumerable<ProductDto>> GetProductsBySize(string size);
+        
     }
 }
