@@ -24,9 +24,9 @@ public class ReviewController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReviews()
+    public async Task<ActionResult<IEnumerable<ReviewDto>>> GetAllReviews(int page = 1, int pageSize = 10, string sortBy = "", string sortOrder = "")
     {
-        var reviews = await reviewRepository.GetAllReviews();
+        var reviews = await reviewRepository.GetAllReviews(page, pageSize, sortBy, sortOrder);
         if (reviews == null || reviews.Count() == 0)
         {
             return NoContent();

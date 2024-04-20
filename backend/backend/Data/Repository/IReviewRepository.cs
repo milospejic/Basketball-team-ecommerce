@@ -11,5 +11,6 @@ namespace backend.Data.Repository
         Task DeleteReview(Guid reviewId);
         Task<IEnumerable<ReviewDto>> GetReviewsByProductId(Guid productId);
         Task<IEnumerable<ReviewDto>> GetReviewsByUserId(Guid productId);
+        Task<IEnumerable<ReviewDto>> GetAllReviews(int page, int pageSize, string sortBy, string sortOrder);
     }
 }

@@ -9,7 +9,7 @@ namespace backend.Data.Repository
         Task<Guid> CreateOrder(OrderCreateDto orderDto, Guid userId);
         Task UpdateOrder(Guid orderId, OrderUpdateDto orderDto);
         Task DeleteOrder(Guid orderId);
-
         Task<IEnumerable<OrderDto>> GetOrdersByUserId(Guid userId);
+        Task<IEnumerable<OrderDto>> GetAllOrders(int page, int pageSize, string sortBy, string sortOrder);
     }
 }

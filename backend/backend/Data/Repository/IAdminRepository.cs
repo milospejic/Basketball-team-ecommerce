@@ -13,5 +13,7 @@ namespace backend.Data.Repository
         bool AdminWithCredentialsExists(string email, string password);
 
         Admin GetAdminByEmail(string email);
+        Task<IEnumerable<AdminDto>> GetAllAdmins(int page, int pageSize, string sortBy, string sortOrder);
+
     }
 }

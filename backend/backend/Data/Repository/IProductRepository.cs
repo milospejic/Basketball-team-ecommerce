@@ -15,6 +15,9 @@ namespace backend.Data.Repository
         Task<IEnumerable<ProductDto>> GetProductsByBrand(string brand);
         Task<IEnumerable<ProductDto>> GetProductsByCategory(string category);
         Task<IEnumerable<ProductDto>> GetProductsBySize(string size);
-        
+
+        Task<IEnumerable<ProductDto>> GetAllProducts(int page, int pageSize, string sortBy, string sortOrder);
+
+
     }
 }

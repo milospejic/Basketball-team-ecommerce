@@ -60,6 +60,33 @@ namespace backend.Data.Repository
             context.DiscountTable.Remove(discount);
             await context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<DiscountDto>> GetAllDiscounts(int page, int pageSize, string sortBy, string sortOrder)
+        {
+            var query = context.DiscountTable.AsQueryable();
+
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(sortOrder))
+            {
+                switch (sortBy.ToLower())
+                {
+                   
+                    case "discounttype":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(d => d.DiscountType) : query.OrderByDescending(d => d.DiscountType);
+                        break;
+                    case "percentage":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(d => d.Percentage) : query.OrderByDescending(d => d.Percentage);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Apply pagination
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var discounts = await query.ToListAsync();
+            return mapper.Map<IEnumerable<DiscountDto>>(discounts);
+        }
     }
 
 }

@@ -131,6 +131,52 @@ namespace backend.Data.Repository
             }
             return mapper.Map<IEnumerable<ProductDto>>(returnProducts);
         }
+
+        public async Task<IEnumerable<ProductDto>> GetAllProducts(int page, int pageSize, string sortBy, string sortOrder)
+        {
+            var query = context.ProductTable.AsQueryable();
+
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(sortOrder))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "productname":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(p => p.ProductName) : query.OrderByDescending(p => p.ProductName);
+                        break;
+                    case "price":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(p => p.Price) : query.OrderByDescending(p => p.Price);
+                        break;
+                    case "brand":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(p => p.Brand) : query.OrderByDescending(p => p.Brand);
+                        break;
+                    case "category":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(p => p.Category) : query.OrderByDescending(p => p.Category);
+                        break;
+                    case "size":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(p => p.Size) : query.OrderByDescending(p => p.Size);
+                        break;
+                    case "totalrating":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(p => p.TotalRating) : query.OrderByDescending(p => p.TotalRating);
+                        break;
+                    case "numofreviews":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(p => p.NumOfReviews) : query.OrderByDescending(p => p.NumOfReviews);
+                        break;
+                    case "adminid":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(p => p.AdminId) : query.OrderByDescending(p => p.AdminId);
+                        break;
+                    case "discountid":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(p => p.DiscountId) : query.OrderByDescending(p => p.DiscountId);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var products = await query.ToListAsync();
+            return mapper.Map<IEnumerable<ProductDto>>(products);
+        }
     }
 
 }

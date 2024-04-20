@@ -63,6 +63,35 @@ namespace backend.Data.Repository
             await context.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<ProductOrderDto>> GetAllProductOrders(int page, int pageSize, string sortBy, string sortOrder)
+        {
+            var query = context.ProductOrderTable.AsQueryable();
+
+            // Apply sorting
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(sortOrder))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "amount":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(po => po.Amount) : query.OrderByDescending(po => po.Amount);
+                        break;
+                    case "orderid":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(po => po.OrderId) : query.OrderByDescending(po => po.OrderId);
+                        break;
+                    case "productid":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(po => po.ProductId) : query.OrderByDescending(po => po.ProductId);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // Apply pagination
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var productOrders = await query.ToListAsync();
+            return mapper.Map<IEnumerable<ProductOrderDto>>(productOrders);
+        }
     }
 
 }

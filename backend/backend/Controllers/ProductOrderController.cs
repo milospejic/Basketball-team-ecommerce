@@ -22,9 +22,9 @@ public class ProductOrderController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult<IEnumerable<ProductOrderDto>>> GetAllProductOrders()
+    public async Task<ActionResult<IEnumerable<ProductOrderDto>>> GetAllProductOrders(int page = 1, int pageSize = 10, string sortBy = "", string sortOrder = "")
     {
-        var productOrders = await productOrderRepository.GetAllProductOrders();
+        var productOrders = await productOrderRepository.GetAllProductOrders(page, pageSize, sortBy, sortOrder);
         if (productOrders == null || productOrders.Count() == 0)
         {
             return NoContent();

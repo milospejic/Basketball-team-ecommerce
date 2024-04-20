@@ -25,9 +25,9 @@ public class OrderController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders()
+    public async Task<ActionResult<IEnumerable<OrderDto>>> GetAllOrders(int page = 1, int pageSize = 10, string sortBy = "", string sortOrder = "")
     {
-        var orders = await orderRepository.GetAllOrders();
+        var orders = await orderRepository.GetAllOrders(page, pageSize, sortBy, sortOrder);
         if (orders == null || orders.Count() == 0)
         {
             return NoContent();

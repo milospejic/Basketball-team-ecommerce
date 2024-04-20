@@ -24,9 +24,9 @@ public class ProductController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [AllowAnonymous]
-    public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts()
+    public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllProducts(int page = 1, int pageSize = 10, string sortBy = "", string sortOrder = "")
     {
-        var products = await productRepository.GetAllProducts();
+        var products = await productRepository.GetAllProducts(page, pageSize, sortBy, sortOrder);
         if (products == null || products.Count() == 0)
         {
             return NoContent();

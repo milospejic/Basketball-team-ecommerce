@@ -328,6 +328,40 @@ namespace backend.Data.Repository
             }
             return mapper.Map<IEnumerable<OrderDto>>(returnOrders);
         }
+
+        public async Task<IEnumerable<OrderDto>> GetAllOrders(int page, int pageSize, string sortBy, string sortOrder)
+        {
+            var query = context.OrderTable.AsQueryable();
+
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(sortOrder))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "numberofitems":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(o => o.NumberOfItems) : query.OrderByDescending(o => o.NumberOfItems);
+                        break;
+                    case "totalprice":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(o => o.TotalPrice) : query.OrderByDescending(o => o.TotalPrice);
+                        break;
+                    case "orderstatus":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(o => o.OrderStatus) : query.OrderByDescending(o => o.OrderStatus);
+                        break;
+                    case "orderdate":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(o => o.OrderDate) : query.OrderByDescending(o => o.OrderDate);
+                        break;
+                    case "userid":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(o => o.UserId) : query.OrderByDescending(o => o.UserId);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var orders = await query.ToListAsync();
+            return mapper.Map<IEnumerable<OrderDto>>(orders);
+        }
     }
 
 }

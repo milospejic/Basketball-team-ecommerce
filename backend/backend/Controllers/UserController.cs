@@ -23,9 +23,9 @@ public class UserController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers(int page = 1, int pageSize = 10, string sortBy = "", string sortOrder = "")
     {
-        var users = await userRepository.GetAllUsers();
+        var users = await userRepository.GetAllUsers(page, pageSize, sortBy, sortOrder);
         if (users == null || users.Count() == 0)
         {
             return NoContent();

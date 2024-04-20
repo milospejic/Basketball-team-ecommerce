@@ -22,9 +22,9 @@ public class AdminController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult<IEnumerable<AdminDto>>> GetAllAdmins()
+    public async Task<ActionResult<IEnumerable<AdminDto>>> GetAllAdmins(int page = 1, int pageSize = 10, string sortBy = "", string sortOrder = "")
     {
-        var admins = await adminRepository.GetAllAdmins();
+        var admins = await adminRepository.GetAllAdmins(page, pageSize, sortBy, sortOrder);
         if (admins == null || admins.Count() == 0)
         {
             return NoContent();

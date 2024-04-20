@@ -144,6 +144,37 @@ namespace backend.Data.Repository
             }
             return user;
         }
+
+        public async Task<IEnumerable<UserDto>> GetAllUsers(int page, int pageSize, string sortBy, string sortOrder)
+        {
+            var query = context.UserTable.AsQueryable();
+
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(sortOrder))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "name":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(u => u.Name) : query.OrderByDescending(p => p.Name);
+                        break;
+                    case "surname":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(u => u.Surname) : query.OrderByDescending(p => p.Surname);
+                        break;
+                    case "email":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(u => u.Email) : query.OrderByDescending(p => p.Email);
+                        break;
+                    case "dateofbirth":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(u => u.DateOfBirth) : query.OrderByDescending(p => p.DateOfBirth);
+                        break;                    
+                    default:
+                        break;
+                }
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var users = await query.ToListAsync();
+            return mapper.Map<IEnumerable<UserDto>>(users);
+        }
     }
 
 }

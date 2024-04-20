@@ -109,6 +109,34 @@ namespace backend.Data.Repository
             }
             return mapper.Map<IEnumerable<ReviewDto>>(returnReviews);
         }
+
+        public async Task<IEnumerable<ReviewDto>> GetAllReviews(int page, int pageSize, string sortBy, string sortOrder)
+        {
+            var query = context.ReviewTable.AsQueryable();
+
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(sortOrder))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "rating":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(r => r.Rating) : query.OrderByDescending(r => r.Rating);
+                        break;
+                    case "userid":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(r => r.UserId) : query.OrderByDescending(r => r.UserId);
+                        break;
+                    case "productid":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(r => r.ProductId) : query.OrderByDescending(r => r.ProductId);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var reviews = await query.ToListAsync();
+            return mapper.Map<IEnumerable<ReviewDto>>(reviews);
+        }
     }
 
 }

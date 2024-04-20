@@ -61,5 +61,36 @@ namespace backend.Data.Repository
             await context.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<AddressDto>> GetAllAddresss(int page, int pageSize, string sortBy, string sortOrder)
+        {
+            var query = context.AddressTable.AsQueryable();
+
+
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(sortOrder))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "street":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.Street) : query.OrderByDescending(a => a.Street);
+                        break;
+                    case "streetnumber":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.StreetNumber) : query.OrderByDescending(a => a.StreetNumber);
+                        break;
+                    case "town":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.Town) : query.OrderByDescending(a => a.Town);
+                        break;
+                    case "country":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.Country) : query.OrderByDescending(a => a.Country);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var addresses = await query.ToListAsync();
+            return mapper.Map<IEnumerable<AddressDto>>(addresses);
+        }
     }
 }

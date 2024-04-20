@@ -21,9 +21,9 @@ public class DiscountController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult<IEnumerable<DiscountDto>>> GetAllDiscounts()
+    public async Task<ActionResult<IEnumerable<DiscountDto>>> GetAllDiscounts(int page = 1, int pageSize = 10, string sortBy = "", string sortOrder = "")
     {
-        var discounts = await discountRepository.GetAllDiscounts();
+        var discounts = await discountRepository.GetAllDiscounts(page, pageSize, sortBy, sortOrder);
         if (discounts == null || discounts.Count() == 0)
         {
             return NoContent();

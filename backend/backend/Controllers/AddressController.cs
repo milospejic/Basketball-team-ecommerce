@@ -22,9 +22,9 @@ public class AddressController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult<IEnumerable<AddressDto>>> GetAllAddresses()
+    public async Task<ActionResult<IEnumerable<AddressDto>>> GetAllAddresses(int page = 1, int pageSize = 10, string sortBy = "", string sortOrder = "")
     {
-        var addresses = await addressRepository.GetAllAddresss();
+        var addresses = await addressRepository.GetAllAddresss(page, pageSize, sortBy, sortOrder);
         if (addresses == null || addresses.Count() == 0)
         {
             return NoContent();

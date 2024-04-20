@@ -9,5 +9,6 @@ namespace backend.Data.Repository
         Task<Guid> CreateAddress(AddressCreateDto addressDto);
         Task UpdateAddress(Guid addressId, AddressUpdateDto addressDto);
         Task DeleteAddress(Guid addressId);
+        Task<IEnumerable<AddressDto>> GetAllAddresss(int page, int pageSize, string sortBy, string sortOrder);
     }
 }

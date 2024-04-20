@@ -116,5 +116,33 @@ namespace backend.Data.Repository
             }
             return admin;
         }
+
+        public async Task<IEnumerable<AdminDto>> GetAllAdmins(int page, int pageSize, string sortBy, string sortOrder)
+        {
+            var query = context.AdminTable.AsQueryable();
+
+            if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(sortOrder))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "adminname":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.AdminName) : query.OrderByDescending(a => a.AdminName);
+                        break;
+                    case "adminsurname":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.AdminSurname) : query.OrderByDescending(a => a.AdminSurname);
+                        break;
+                    case "adminemail":
+                        query = sortOrder.ToLower() == "asc" ? query.OrderBy(a => a.AdminEmail) : query.OrderByDescending(a => a.AdminEmail);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+
+            var admins = await query.ToListAsync();
+            return mapper.Map<IEnumerable<AdminDto>>(admins);
+        }
     }
 }

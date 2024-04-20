@@ -15,5 +15,7 @@ namespace backend.Data.Repository
         User GetCurrentUser(ClaimsPrincipal user);
 
         User GetUserByEmail(string email);
+        Task<IEnumerable<UserDto>> GetAllUsers(int page, int pageSize, string sortBy, string sortOrder);
+
     }
 }
