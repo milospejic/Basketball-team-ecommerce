@@ -88,6 +88,7 @@ namespace backend.Data.Repository
 
                 }
             }
+
             return mapper.Map<OrderDto>(order);
         }
 
@@ -163,7 +164,7 @@ namespace backend.Data.Repository
                     }
                 }
             }
-
+            order.isPaid = false;
             context.OrderTable.Add(order);
             await context.SaveChangesAsync();
             return order.OrderId;
@@ -361,6 +362,17 @@ namespace backend.Data.Repository
 
             var orders = await query.ToListAsync();
             return mapper.Map<IEnumerable<OrderDto>>(orders);
+        }
+
+        public async Task PayOrder(Guid orderId)
+        {
+            var order = await context.OrderTable.FindAsync(orderId);
+            if (order == null)
+            {
+                throw new ArgumentException("Order not found");
+            }
+            order.isPaid = true;
+            await context.SaveChangesAsync();
         }
     }
 

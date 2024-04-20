@@ -11,5 +11,6 @@ namespace backend.Data.Repository
         Task DeleteOrder(Guid orderId);
         Task<IEnumerable<OrderDto>> GetOrdersByUserId(Guid userId);
         Task<IEnumerable<OrderDto>> GetAllOrders(int page, int pageSize, string sortBy, string sortOrder);
+        Task PayOrder(Guid orderId);
     }
 }

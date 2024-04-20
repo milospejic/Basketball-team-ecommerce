@@ -10,6 +10,7 @@ namespace backend.Models
         public string OrderStatus { get; set; }
         public DateTime OrderDate { get; set; }
         public double TotalPrice { get; set; }
+        public bool isPaid { get; set; }
         public Guid UserId { get; set; }
         public User User { get; set; }
 

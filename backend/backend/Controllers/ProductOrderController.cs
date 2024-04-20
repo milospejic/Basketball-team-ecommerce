@@ -89,14 +89,14 @@ public class ProductOrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteProductOrder(Guid id, Guid id2)
     {
-        var productOrder = productOrderRepository.GetProductOrderById(id,id2);
+        var productOrder = productOrderRepository.GetProductOrderById(id, id2);
         if (productOrder == null)
         {
             return NotFound();
         }
         try
         {
-            await productOrderRepository.DeleteProductOrder(id, id2    );
+            await productOrderRepository.DeleteProductOrder(id, id2);
             return NoContent();
         }
         catch (ArgumentException ex)

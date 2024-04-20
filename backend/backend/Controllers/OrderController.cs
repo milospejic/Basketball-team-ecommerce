@@ -18,7 +18,7 @@ public class OrderController : ControllerBase
     {
         this.orderRepository = orderRepository;
         this.mapper = mapper;
-        this.userRepository= userRepository;
+        this.userRepository = userRepository;
     }
 
     [Authorize(Roles = "Admin")]
@@ -58,7 +58,7 @@ public class OrderController : ControllerBase
     public async Task<ActionResult<Guid>> CreateOrder(OrderCreateDto orderDto)
     {
 
-        
+
         var user = userRepository.GetUserByEmail(User.FindFirst(ClaimTypes.Email)?.Value);
         var orderId = await orderRepository.CreateOrder(orderDto, user.UserId);
         return Ok(orderId);
@@ -121,5 +121,22 @@ public class OrderController : ControllerBase
             return NoContent();
         }
         return Ok(orders);
+    }
+
+    [Authorize(Roles = "User")]
+    [HttpPatch("{orderId}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> PayOrder(Guid orderId)
+    {
+        var order = await orderRepository.GetOrderById(orderId);
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        await orderRepository.PayOrder(orderId);
+        var updatedOrder = await orderRepository.GetOrderById(orderId);
+        return Ok(mapper.Map<OrderDto>(updatedOrder));
     }
 }

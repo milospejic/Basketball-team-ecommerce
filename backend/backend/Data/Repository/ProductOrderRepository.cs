@@ -67,7 +67,6 @@ namespace backend.Data.Repository
         {
             var query = context.ProductOrderTable.AsQueryable();
 
-            // Apply sorting
             if (!string.IsNullOrEmpty(sortBy) && !string.IsNullOrEmpty(sortOrder))
             {
                 switch (sortBy.ToLower())
@@ -86,7 +85,6 @@ namespace backend.Data.Repository
                 }
             }
 
-            // Apply pagination
             query = query.Skip((page - 1) * pageSize).Take(pageSize);
 
             var productOrders = await query.ToListAsync();
