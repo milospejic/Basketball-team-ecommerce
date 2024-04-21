@@ -18,7 +18,7 @@ public class ProductOrderController : ControllerBase
         this.mapper = mapper;
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User")]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -34,7 +34,7 @@ public class ProductOrderController : ControllerBase
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductOrderDto>> GetProductOrderById(Guid id, Guid id2)
     {
@@ -48,7 +48,7 @@ public class ProductOrderController : ControllerBase
     }
 
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User")]
     [HttpPost]
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -59,17 +59,20 @@ public class ProductOrderController : ControllerBase
         return Ok(productOrderId);
     }
 
-    /* [HttpPut("{id}")]
-     * [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+    [Authorize(Roles = "User")]
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
      public async Task<IActionResult> UpdateProductOrder(Guid id, Guid id2, ProductOrderUpdateDto productOrderDto)
      {
+        /*
         var oldProductOrder = productOrderRepository.GetProductOrderById(id,id2);
         if (oldProductOrder == null)
         {
             return NotFound();
-        }
+        }*/
          try
          {
              await productOrderRepository.UpdateProductOrder(id,id2, productOrderDto);
@@ -79,21 +82,21 @@ public class ProductOrderController : ControllerBase
          {
              return BadRequest(ex.Message);
          }
-     }*/
+     }
 
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteProductOrder(Guid id, Guid id2)
     {
-        var productOrder = productOrderRepository.GetProductOrderById(id, id2);
+        /*var productOrder = productOrderRepository.GetProductOrderById(id, id2);
         if (productOrder == null)
         {
             return NotFound();
-        }
+        }*/
         try
         {
             await productOrderRepository.DeleteProductOrder(id, id2);

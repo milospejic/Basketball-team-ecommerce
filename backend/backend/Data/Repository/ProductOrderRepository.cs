@@ -23,7 +23,7 @@ namespace backend.Data.Repository
             return mapper.Map<IEnumerable<ProductOrderDto>>(productOrders);
         }
 
-        public async Task<ProductOrderDto> GetProductOrderById(Guid orderId, Guid productId)
+        public async Task<ProductOrderDto> GetProductOrderById(Guid productId, Guid orderId)
         {
             var productOrder = await context.ProductOrderTable.FindAsync(orderId, productId);
             return mapper.Map<ProductOrderDto>(productOrder);
@@ -33,32 +33,43 @@ namespace backend.Data.Repository
         {
             var productOrder = mapper.Map<ProductOrder>(productOrderDto);
             context.ProductOrderTable.Add(productOrder);
+            var product = context.ProductTable.FirstOrDefault(x => x.ProductId == productOrderDto.ProductId);
+            product.Quantity = product.Quantity - productOrderDto.Amount;
             await context.SaveChangesAsync();
             return mapper.Map<ProductOrderDto>(productOrder);
 
 
         }
 
-        public async Task UpdateProductOrder(Guid orderId, Guid productId, ProductOrderCreateDto productOrderDto)
+        public async Task UpdateProductOrder(Guid productId, Guid orderId, ProductOrderUpdateDto productOrderDto)
         {
             var productOrder = await context.ProductOrderTable.FindAsync(orderId, productId);
             if (productOrder == null)
             {
                 throw new ArgumentException("ProductOrder not found");
             }
-
+            var oldAmount = productOrder.Amount;
+            var newAmount = productOrderDto.Amount;
+            var product = context.ProductTable.FirstOrDefault(x => x.ProductId == orderId);
+            if (product == null)
+            {
+                throw new ArgumentException("Product not found");
+            }
+            product.Quantity = product.Quantity + oldAmount - newAmount;
             mapper.Map(productOrderDto, productOrder);
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteProductOrder(Guid orderId, Guid productId)
+        public async Task DeleteProductOrder(Guid productId, Guid orderId)
         {
-            var productOrder = await context.ProductOrderTable.FindAsync(orderId, productId);
+            var productOrder = await context.ProductOrderTable
+                    .FirstOrDefaultAsync(op => op.OrderId == orderId && op.ProductId == productId);
             if (productOrder == null)
             {
                 throw new ArgumentException("ProductOrder not found");
             }
-
+            var product = context.ProductTable.FirstOrDefault(x => x.ProductId == productId);
+            product.Quantity = product.Quantity + productOrder.Amount;
             context.ProductOrderTable.Remove(productOrder);
             await context.SaveChangesAsync();
         }

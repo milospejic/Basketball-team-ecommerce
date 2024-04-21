@@ -11,7 +11,7 @@ namespace backend.Profiles
             CreateMap<ProductOrder, ProductOrderDto>();
             CreateMap<ProductOrderDto, ProductOrder>();
             CreateMap<ProductOrderCreateDto, ProductOrder>();
-            //CreateMap<ProductOrderUpdateDto, ProductOrder>();
+            CreateMap<ProductOrderUpdateDto, ProductOrder>();
         }
     }
 
