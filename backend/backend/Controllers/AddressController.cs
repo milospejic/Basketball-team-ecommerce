@@ -41,7 +41,7 @@ public class AddressController : ControllerBase
         var address = await addressRepository.GetAddressById(id);
         if (address == null)
         {
-            return NotFound();
+            return NotFound("There is no address with id: "+ id);
         }
 
         return Ok(address);
@@ -52,10 +52,10 @@ public class AddressController : ControllerBase
     [Consumes("application/json")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Guid>> CreateAddress(AddressCreateDto addressDto)
+    public async Task<ActionResult<AddressDto>> CreateAddress(AddressCreateDto addressDto)
     {
-        var addressId = await addressRepository.CreateAddress(addressDto);
-        return Ok(addressId);
+        var address = await addressRepository.CreateAddress(addressDto);
+        return Ok(address);
     }
 
     [Authorize(Roles = "User")]
@@ -65,11 +65,7 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateAddress(Guid id, AddressUpdateDto addressDto)
     {
-        var oldAddress = addressRepository.GetAddressById(id);
-        if(oldAddress  == null)
-        {
-            return NotFound();
-        }
+       
         try
         {
             await addressRepository.UpdateAddress(id, addressDto);
@@ -88,11 +84,6 @@ public class AddressController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteAddress(Guid id)
     {
-        var address = addressRepository.GetAddressById(id);
-        if (address == null)
-        {
-            return NotFound();
-        }
         try
         {
             await addressRepository.DeleteAddress(id);

@@ -50,7 +50,7 @@ namespace backend.Data.Repository
             return mapper.Map<UserDto>(user);
         }
 
-        public async Task<Guid> CreateUser(UserCreateDto userDto)
+        public async Task<UserDto> CreateUser(UserCreateDto userDto)
         {
             var (hashedPassword, salt) = HashPassword(userDto.Password);
             var user = mapper.Map<User>(userDto);
@@ -58,7 +58,7 @@ namespace backend.Data.Repository
             user.Password = hashedPassword;
             context.UserTable.Add(user);
             await context.SaveChangesAsync();
-            return user.UserId;
+            return mapper.Map<UserDto>(user);
         }
 
         public async Task UpdateUser(Guid userId, UserUpdateDto userDto)

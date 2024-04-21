@@ -41,12 +41,11 @@ public class AdminController : ControllerBase
         var admin = await adminRepository.GetAdminById(id);
         if (admin == null)
         {
-            return NotFound();
+            return NotFound("There is no admin with id: " + id);
         }
 
         return Ok(admin);
     }
-
 
 
     [Authorize(Roles = "Admin")]
@@ -68,11 +67,6 @@ public class AdminController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateAdmin(Guid id, AdminUpdateDto adminDto)
     {
-        var oldAdmin = adminRepository.GetAdminById(id);
-        if (oldAdmin == null)
-        {
-            return NotFound();
-        }
         try
         {
             await adminRepository.UpdateAdmin(id, adminDto);
@@ -92,11 +86,6 @@ public class AdminController : ControllerBase
     public async Task<IActionResult> DeleteAdmin(Guid id)
     {
 
-        var admin = adminRepository.GetAdminById(id);
-        if (admin == null)
-        {
-            return NotFound();
-        }
         try
         {
             await adminRepository.DeleteAdmin(id);

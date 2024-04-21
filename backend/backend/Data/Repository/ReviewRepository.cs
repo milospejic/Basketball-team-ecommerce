@@ -29,13 +29,13 @@ namespace backend.Data.Repository
             return mapper.Map<ReviewDto>(review);
         }
 
-        public async Task<Guid> CreateReview(ReviewCreateDto reviewDto, Guid userId)
+        public async Task<ReviewDto> CreateReview(ReviewCreateDto reviewDto, Guid userId)
         {
             var review = mapper.Map<Review>(reviewDto);
             review.UserId = userId;
             context.ReviewTable.Add(review);
             await context.SaveChangesAsync();
-            return review.ReviewId;
+            return mapper.Map<ReviewDto>(review);
         }
 
         public async Task UpdateReview(Guid reviewId, ReviewUpdateDto reviewDto)

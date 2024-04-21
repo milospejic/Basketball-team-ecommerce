@@ -29,13 +29,13 @@ namespace backend.Data.Repository
             return mapper.Map<ProductDto>(product);
         }
 
-        public async Task<Guid> CreateProduct(ProductCreateDto productDto, Guid adminId)
+        public async Task<ProductDto> CreateProduct(ProductCreateDto productDto, Guid adminId)
         {
             var product = mapper.Map<Product>(productDto);
             product.AdminId = adminId;
             context.ProductTable.Add(product);
             await context.SaveChangesAsync();
-            return product.ProductId;
+            return mapper.Map<ProductDto>(product);
         }
 
         public async Task UpdateProduct(Guid productId, ProductUpdateDto productDto)

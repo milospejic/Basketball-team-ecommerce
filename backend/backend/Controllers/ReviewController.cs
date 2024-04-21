@@ -43,7 +43,7 @@ public class ReviewController : ControllerBase
         var review = await reviewRepository.GetReviewById(id);
         if (review == null)
         {
-            return NotFound();
+            return NotFound("There is no review with id: " + id);
         }
 
         return Ok(review);
@@ -57,8 +57,8 @@ public class ReviewController : ControllerBase
     public async Task<ActionResult<Guid>> CreateReview(ReviewCreateDto reviewDto)
     {
         var user = userRepository.GetUserByEmail(User.FindFirst(ClaimTypes.Email)?.Value);
-        var reviewId = await reviewRepository.CreateReview(reviewDto,user.UserId);
-        return Ok(reviewId);
+        var review = await reviewRepository.CreateReview(reviewDto,user.UserId);
+        return Ok(review);
     }
 
     [Authorize(Roles = "User")]
@@ -68,11 +68,6 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateReview(Guid id, ReviewUpdateDto reviewDto)
     {
-        var oldReview = reviewRepository.GetReviewById(id);
-        if (oldReview == null)
-        {
-            return NotFound();
-        }
         try
         {
             await reviewRepository.UpdateReview(id, reviewDto);
@@ -91,11 +86,6 @@ public class ReviewController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteReview(Guid id)
     {
-        var review = reviewRepository.GetReviewById(id);
-        if (review == null)
-        {
-            return NotFound();
-        }
         try
         {
             await reviewRepository.DeleteReview(id);

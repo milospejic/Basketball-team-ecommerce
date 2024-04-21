@@ -92,7 +92,7 @@ namespace backend.Data.Repository
             return mapper.Map<OrderDto>(order);
         }
 
-        public async Task<Guid> CreateOrder(OrderCreateDto orderDto, Guid userId)
+        public async Task<OrderDto> CreateOrder(OrderCreateDto orderDto, Guid userId)
         {
             var order = mapper.Map<Order>(orderDto);
             order.OrderId = Guid.NewGuid();
@@ -167,7 +167,7 @@ namespace backend.Data.Repository
             order.isPaid = false;
             context.OrderTable.Add(order);
             await context.SaveChangesAsync();
-            return order.OrderId;
+            return mapper.Map<OrderDto>(order);
         }
 
         public async Task UpdateOrder(Guid orderId, OrderUpdateDto orderDto)

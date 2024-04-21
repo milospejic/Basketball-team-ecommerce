@@ -29,12 +29,12 @@ namespace backend.Data.Repository
             return mapper.Map<AddressDto>(address);
         }
 
-        public async Task<Guid> CreateAddress(AddressCreateDto addressDto)
+        public async Task<AddressDto> CreateAddress(AddressCreateDto addressDto)
         {
             var address = mapper.Map<Address>(addressDto);
             context.AddressTable.Add(address);
             await context.SaveChangesAsync();
-            return address.AddressId;
+            return mapper.Map<AddressDto>(address);
         }
 
         public async Task UpdateAddress(Guid addressId, AddressUpdateDto addressDto)

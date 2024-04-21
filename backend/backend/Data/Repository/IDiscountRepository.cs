@@ -6,7 +6,7 @@ namespace backend.Data.Repository
     {
         Task<IEnumerable<DiscountDto>> GetAllDiscounts();
         Task<DiscountDto> GetDiscountById(Guid discountId);
-        Task<Guid> CreateDiscount(DiscountCreateDto discountDto);
+        Task<DiscountDto> CreateDiscount(DiscountCreateDto discountDto);
         Task UpdateDiscount(Guid discountId, DiscountUpdateDto discountDto);
         Task DeleteDiscount(Guid discountId);
         Task<IEnumerable<DiscountDto>> GetAllDiscounts(int page, int pageSize, string sortBy, string sortOrder);

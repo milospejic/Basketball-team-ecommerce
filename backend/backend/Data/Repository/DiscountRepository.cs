@@ -29,12 +29,12 @@ namespace backend.Data.Repository
             return mapper.Map<DiscountDto>(discount);
         }
 
-        public async Task<Guid> CreateDiscount(DiscountCreateDto discountDto)
+        public async Task<DiscountDto> CreateDiscount(DiscountCreateDto discountDto)
         {
             var discount = mapper.Map<Discount>(discountDto);
             context.DiscountTable.Add(discount);
             await context.SaveChangesAsync();
-            return discount.DiscountId;
+            return mapper.Map<DiscountDto>(discount);
         }
 
         public async Task UpdateDiscount(Guid discountId, DiscountUpdateDto discountDto)

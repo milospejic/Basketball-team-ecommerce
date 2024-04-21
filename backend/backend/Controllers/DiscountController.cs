@@ -17,6 +17,7 @@ public class DiscountController : ControllerBase
         this.discountRepository = discountRepository;
         this.mapper = mapper;
     }
+
     [Authorize(Roles = "Admin")]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -40,7 +41,7 @@ public class DiscountController : ControllerBase
         var discount = await discountRepository.GetDiscountById(id);
         if (discount == null)
         {
-            return NotFound();
+            return NotFound("There is no discount for id: " + id);
         }
 
         return Ok(discount);
@@ -64,11 +65,7 @@ public class DiscountController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateDiscount(Guid id, DiscountUpdateDto discountDto)
     {
-        var oldDiscount = discountRepository.GetDiscountById(id);
-        if (oldDiscount == null)
-        {
-            return NotFound();
-        }
+        
         try
         {
             await discountRepository.UpdateDiscount(id, discountDto);
@@ -87,11 +84,7 @@ public class DiscountController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteDiscount(Guid id)
     {
-        var discount = discountRepository.GetDiscountById(id);
-        if (discount == null)
-        {
-            return NotFound();
-        }
+       
         try
         {
             await discountRepository.DeleteDiscount(id);

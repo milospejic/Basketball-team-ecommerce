@@ -42,7 +42,7 @@ public class UserController : ControllerBase
         var user = await userRepository.GetUserById(id);
         if (user == null)
         {
-            return NotFound();
+            return NotFound("There is no user with id: " + id);
         }
 
         return Ok(user);
@@ -60,8 +60,8 @@ public class UserController : ControllerBase
         {
             return Conflict("User with that email already exists");
         }
-        var userId = await userRepository.CreateUser(userDto);
-        return Ok(userId);
+        var user = await userRepository.CreateUser(userDto);
+        return Ok(user);
     }
 
     [Authorize(Roles = "User")]
@@ -71,11 +71,6 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateUser(Guid id, UserUpdateDto userDto)
     {
-        var oldUser = userRepository.GetUserById(id);
-        if (oldUser == null)
-        {
-            return NotFound();
-        }
         try
         {
             await userRepository.UpdateUser(id, userDto);
@@ -94,11 +89,6 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
-        var user = userRepository.GetUserById(id);
-        if (user == null)
-        {
-            return NotFound();
-        }
         try
         {
             await userRepository.DeleteUser(id);

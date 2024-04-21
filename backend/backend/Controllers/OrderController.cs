@@ -44,7 +44,7 @@ public class OrderController : ControllerBase
         var order = await orderRepository.GetOrderById(id);
         if (order == null)
         {
-            return NotFound();
+            return NotFound("There is no order with id: " + id);
         }
 
         return Ok(order);
@@ -57,11 +57,9 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateOrder(OrderCreateDto orderDto)
     {
-
-
         var user = userRepository.GetUserByEmail(User.FindFirst(ClaimTypes.Email)?.Value);
-        var orderId = await orderRepository.CreateOrder(orderDto, user.UserId);
-        return Ok(orderId);
+        var order = await orderRepository.CreateOrder(orderDto, user.UserId);
+        return Ok(order);
     }
 
     [Authorize(Roles = "User,Admin")]
@@ -71,11 +69,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateOrder(Guid id, OrderUpdateDto orderDto)
     {
-        var oldOrder = orderRepository.GetOrderById(id);
-        if (oldOrder == null)
-        {
-            return NotFound();
-        }
+       
         try
         {
             await orderRepository.UpdateOrder(id, orderDto);
@@ -86,6 +80,8 @@ public class OrderController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+
     [Authorize(Roles = "User")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -93,11 +89,7 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteOrder(Guid id)
     {
-        var order = orderRepository.GetOrderById(id);
-        if (order == null)
-        {
-            return NotFound();
-        }
+        
         try
         {
             await orderRepository.DeleteOrder(id);

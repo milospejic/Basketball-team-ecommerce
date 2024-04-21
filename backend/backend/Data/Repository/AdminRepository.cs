@@ -31,7 +31,7 @@ namespace backend.Data.Repository
             return mapper.Map<AdminDto>(admin);
         }
 
-        public async Task<Guid> CreateAdmin(AdminCreateDto adminDto)
+        public async Task<AdminDto> CreateAdmin(AdminCreateDto adminDto)
         {
             var (hashedPassword, salt) = HashPassword(adminDto.AdminPassword);
             var admin = mapper.Map<Admin>(adminDto);
@@ -39,7 +39,7 @@ namespace backend.Data.Repository
             admin.AdminPassword = hashedPassword;
             context.AdminTable.Add(admin);
             await context.SaveChangesAsync();
-            return admin.AdminId;
+            return mapper.Map<AdminDto>(admin);
         }
 
         public async Task UpdateAdmin(Guid id, AdminUpdateDto adminDto)

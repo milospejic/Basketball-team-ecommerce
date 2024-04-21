@@ -43,7 +43,7 @@ public class ProductController : ControllerBase
         var product = await productRepository.GetProductById(id);
         if (product == null)
         {
-            return NotFound();
+            return NotFound("There is no product with id: " + id);
         }
 
         return Ok(product);
@@ -58,8 +58,8 @@ public class ProductController : ControllerBase
     public async Task<ActionResult<Guid>> CreateProduct(ProductCreateDto productDto)
     {
         var admin = adminRepository.GetAdminByEmail(User.FindFirst(ClaimTypes.Email)?.Value);
-        var productId = await productRepository.CreateProduct(productDto, admin.AdminId);
-        return Ok(productId);
+        var product = await productRepository.CreateProduct(productDto, admin.AdminId);
+        return Ok(product);
     }
 
 
@@ -70,11 +70,6 @@ public class ProductController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateProduct(Guid id, ProductUpdateDto productDto)
     {
-        var oldProduct = productRepository.GetProductById(id);
-        if (oldProduct == null)
-        {
-            return NotFound();
-        }
         try
         {
             await productRepository.UpdateProduct(id, productDto);
@@ -94,11 +89,6 @@ public class ProductController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteProduct(Guid id)
     {
-        var product = productRepository.GetProductById(id);
-        if (product == null)
-        {
-            return NotFound();
-        }
         try
         {
             await productRepository.DeleteProduct(id);

@@ -6,7 +6,7 @@ namespace backend.Data.Repository
     {
         Task<IEnumerable<AddressDto>> GetAllAddresss();
         Task<AddressDto> GetAddressById(Guid addressId);
-        Task<Guid> CreateAddress(AddressCreateDto addressDto);
+        Task<AddressDto> CreateAddress(AddressCreateDto addressDto);
         Task UpdateAddress(Guid addressId, AddressUpdateDto addressDto);
         Task DeleteAddress(Guid addressId);
         Task<IEnumerable<AddressDto>> GetAllAddresss(int page, int pageSize, string sortBy, string sortOrder);
