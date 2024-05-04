@@ -55,8 +55,14 @@ public class ProductOrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateProductOrder(ProductOrderCreateDto productOrderDto)
     {
+        try { 
         var productOrderId = await productOrderRepository.CreateProductOrder(productOrderDto);
         return Ok(productOrderId);
+        }
+         catch (ArgumentException ex)
+         {
+             return BadRequest(ex.Message);
+         }
     }
 
 

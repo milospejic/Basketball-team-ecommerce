@@ -94,6 +94,15 @@ namespace backend.Data.Repository
 
         public async Task<OrderDto> CreateOrder(OrderCreateDto orderDto, Guid userId)
         {
+
+            foreach(var productInOrder in orderDto.ProductsInOrder)
+            {
+                var product = context.ProductTable.FirstOrDefault(p => p.ProductId == productInOrder.ProductId);
+                if (product.Quantity < productInOrder.Amount)
+                {
+                    throw new ArgumentException("Amount of ordered product bigger than its quantity at the storage");
+                }
+            }
             var order = mapper.Map<Order>(orderDto);
             order.OrderId = Guid.NewGuid();
             order.UserId = userId;
@@ -172,6 +181,7 @@ namespace backend.Data.Repository
 
         public async Task UpdateOrder(Guid orderId, OrderUpdateDto orderDto)
         {
+
             var order = await context.OrderTable.FindAsync(orderId);
             if (order == null)
             {
@@ -192,8 +202,20 @@ namespace backend.Data.Repository
                 }
             }
 
+            foreach (var productInOrder in orderDto.ProductsInOrder)
+            {
+                var product = context.ProductTable.FirstOrDefault(p => p.ProductId == productInOrder.ProductId);
+                if (product.Quantity < productInOrder.Amount)
+                {
+                    throw new ArgumentException("Amount of ordered product bigger than its quantity at the storage");
+                }
+            }
+
+
+
             mapper.Map(orderDto, order);
 
+            
 
             order.NumberOfItems = 0;
             order.TotalPrice = 0;

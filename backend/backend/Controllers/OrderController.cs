@@ -57,9 +57,16 @@ public class OrderController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Guid>> CreateOrder(OrderCreateDto orderDto)
     {
-        var user = userRepository.GetUserByEmail(User.FindFirst(ClaimTypes.Email)?.Value);
-        var order = await orderRepository.CreateOrder(orderDto, user.UserId);
-        return Ok(order);
+        try
+        {
+            var user = userRepository.GetUserByEmail(User.FindFirst(ClaimTypes.Email)?.Value);
+            var order = await orderRepository.CreateOrder(orderDto, user.UserId);
+            return Ok(order);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [Authorize(Roles = "User,Admin")]
