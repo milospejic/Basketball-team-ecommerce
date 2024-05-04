@@ -35,7 +35,9 @@ namespace backend.Data.Repository
             context.ProductOrderTable.Add(productOrder);
             var product = context.ProductTable.FirstOrDefault(x => x.ProductId == productOrderDto.ProductId);
             product.Quantity = product.Quantity - productOrderDto.Amount;
-            if(product.Quantity < 0)
+            var order= context.OrderTable.FirstOrDefault(x => x.OrderId == productOrderDto.OrderId);
+            order.NumberOfItems = order.NumberOfItems + productOrderDto.Amount;
+            if (product.Quantity < 0)
             {
                 throw new ArgumentException("Amount of ordered product can not be bigger than its quantity at the storage");
             }
@@ -60,6 +62,8 @@ namespace backend.Data.Repository
                 throw new ArgumentException("Product not found");
             }
             product.Quantity = product.Quantity + oldAmount - newAmount;
+            var order = context.OrderTable.FirstOrDefault(y => y.OrderId == productId);
+            order.NumberOfItems = order.NumberOfItems - oldAmount + newAmount;
             if (product.Quantity < 0)
             {
                 throw new ArgumentException("Amount of ordered product can not be bigger than its quantity at the storage");
