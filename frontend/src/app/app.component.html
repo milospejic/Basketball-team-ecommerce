@@ -36,13 +36,24 @@
                         <a class="nav-link" href="#"><i class="fa fa-search fs-5" style="color: #202122;"></i></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" routerLink="/cart" routerLinkActive="active">
+                        <ng-container *ngIf="isLoggedIn; else loginLink">
+                          <a class="nav-link" routerLink="/cart" routerLinkActive="active">
                             <i class="fa fa-cart-plus fs-5" style="color: #202122;"></i>
                             <span class="position-absolute translate-middle badge rounded-pill bg-danger">
-                                {{getCartCount()}}
+                              {{ getCartCount() }}
                             </span>
-                        </a>
+                          </a>
+                        </ng-container>
+                        <ng-template #loginLink>
+                          <a class="nav-link" routerLink="/login" routerLinkActive="active">
+                            <i class="fa fa-cart-plus fs-5" style="color: #202122;"></i>
+                            <span class="position-absolute translate-middle badge rounded-pill bg-danger">
+                              {{ getCartCount() }}
+                            </span>
+                          </a>
+                        </ng-template>
                     </li>
+                      
 
                 </ul>
 

@@ -1,1 +1,28 @@
-<p>login works!</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header bg-primary text-white">Login</div>
+          <div class="card-body">
+            <form (ngSubmit)="login()">
+              <div class="mb-3">
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" class="form-control" id="email" aria-describedby="emailHelp" name="email" [(ngModel)]="email">
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" [(ngModel)]="password">
+              </div>
+              <button type="submit" class="btn btn-primary">Submit</button>
+              <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+                {{ errorMessage }}
+              </div>
+            </form>            
+          </div>
+          <div class="card-footer">
+            <p class="text-center">Don't have an account? <a routerLink="/register">Sign Up</a>!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

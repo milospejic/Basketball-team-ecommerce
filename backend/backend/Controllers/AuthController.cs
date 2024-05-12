@@ -1,7 +1,9 @@
 ﻿using backend.Auth;
 using backend.Models;
 using backend.Models.Dtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace backend.Controllers
 {
@@ -16,12 +18,16 @@ namespace backend.Controllers
             this.auth = auth;
         }
 
+        [AllowAnonymous]
         [HttpPost("authenticate")]
         [Consumes("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult Authenticate(LoginDto loginDto)
         {
+
+            Console.WriteLine("Received login request: " + JsonConvert.SerializeObject(loginDto));
+
             if (auth.AuthenticateUser(loginDto))
             {
                 var tokenString = auth.GenerateJwt(loginDto);
