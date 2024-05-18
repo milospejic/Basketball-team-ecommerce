@@ -54,11 +54,20 @@ namespace backend.Auth
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             string role = IsAdmin(loginDto) ? "Admin" : "User";
-
+            Guid id = new Guid();
+            if (role == "Admin")
+            {
+                id = adminRepository.GetAdminByEmail(loginDto.Email).AdminId;
+            }
+            else
+            {
+                id= userRepository.GetUserByEmail(loginDto.Email).UserId;
+            }
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email, loginDto.Email),
-                new Claim(ClaimTypes.Role, role)
+                new Claim(ClaimTypes.Role, role),
+                new Claim(ClaimTypes.NameIdentifier, id.ToString())
             };
 
             var token = new JwtSecurityToken(configuration["Jwt:Issuer"],

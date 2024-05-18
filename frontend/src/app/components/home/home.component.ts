@@ -19,10 +19,10 @@ export class HomeComponent implements OnInit{
     this.loadAllProducts();
   }
   loadAllProducts() {
-    console.log('Loading all products...');
+    //console.log('Loading all products...');
     this.productService.getAllProducts().subscribe((result: any)=>{
       this.productList = result;
-      console.log('Products loaded:', this.productList);
+      //console.log('Products loaded:', this.productList);
     }, (error) => {
       console.error('Error loading products:', error);
     });

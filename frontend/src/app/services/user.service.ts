@@ -9,7 +9,7 @@ export class UserService {
 
   constructor(private http: HttpClient) { }
 
-  getCurrentUser(): Observable<any[]>{
-    return this.http.get<any[]>("http://localhost:5259/api/user/current-user")
+  getCurrentUser(): Observable<any>{
+    return this.http.get<any>("http://localhost:5259/api/user/current-user")
   }
 }

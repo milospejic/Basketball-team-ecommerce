@@ -1,4 +1,4 @@
 export class CartProduct {
-    productId!: String;
+    productId!: string;   
     amount!: number;
 }

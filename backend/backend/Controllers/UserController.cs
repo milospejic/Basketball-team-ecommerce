@@ -109,7 +109,9 @@ public class UserController : ControllerBase
  
         var userRole = HttpContext.User.FindFirstValue(ClaimTypes.Role);
 
+        var id = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        return Ok(new { Email = userEmail, Role = userRole });
+
+        return Ok(new { Email = userEmail, Role = userRole, Id = id });
     }
 }

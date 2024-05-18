@@ -1,8 +1,8 @@
 <header>
     <!-- NavBar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom border-top">
-        <div class="container">
-            <a class="navbar-brand fs-2 fw-bold " routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <div class="container-lg">
+            <a class="navbar-brand fs-2 fw-bold" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
                 <i class="fa fa-cart-shopping fs-2" style="color: #f54242;"></i><span class="textBlur">KK IT Novi Sad</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -15,54 +15,87 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 text-center">
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-semibold text-uppercase me-1 text-danger" routerLink="/home" routerLinkActive="active"
-                            id="navbarDropdownHome" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            home
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-uppercase text-black me-1" routerLink="/home" routerLinkActive="active"
+                            [routerLinkActiveOptions]="{exact: true}">
+                            Home
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownHome">
-                            <li><a class="dropdown-item" href="#">Option</a></li>
-                            <li><a class="dropdown-item" href="#">Option</a></li>
-                            <li><a class="dropdown-item" href="#">Option</a></li>
-                        </ul>
-
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link fw-semibold text-uppercase text-black me-1" routerLink="/contactus" routerLinkActive="active">
-                            Contact us
-                        </a> 
+                        <a class="nav-link fw-semibold text-uppercase text-black me-1" routerLink="/contactus" routerLinkActive="active"
+                            [routerLinkActiveOptions]="{exact: true}">
+                            Contact Us
+                        </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#"><i class="fa fa-search fs-5" style="color: #202122;"></i></a>
                     </li>
-                    <li class="nav-item">
-                        <ng-container *ngIf="isLoggedIn; else loginLink">
-                          <a class="nav-link" routerLink="/cart" routerLinkActive="active">
-                            <i class="fa fa-cart-plus fs-5" style="color: #202122;"></i>
-                            <span class="position-absolute translate-middle badge rounded-pill bg-danger">
-                              {{ getCartCount() }}
-                            </span>
-                          </a>
-                        </ng-container>
-                        <ng-template #loginLink>
-                          <a class="nav-link" routerLink="/login" routerLinkActive="active">
-                            <i class="fa fa-cart-plus fs-5" style="color: #202122;"></i>
-                            <span class="position-absolute translate-middle badge rounded-pill bg-danger">
-                              {{ getCartCount() }}
-                            </span>
-                          </a>
-                        </ng-template>
+                    <li class="nav-item dropdown" *ngIf="isLoggedIn">
+                        <a class="nav-link fw-semibold text-uppercase text-black me-1 dropdown-toggle" 
+                           id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-user" aria-hidden="true"></i>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <ng-container *ngIf="isUser; else isAdmin">
+                                <li>
+                                    <a class="dropdown-item fw-semibold text-uppercase text-black" routerLink="/profile" routerLinkActive="active">
+                                        My Profile
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item fw-semibold text-uppercase text-black" routerLink="/address" routerLinkActive="active">
+                                        My Address
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item fw-semibold text-uppercase text-black" routerLink="/orders" routerLinkActive="active">
+                                        My Orders
+                                    </a>
+                                </li>
+                            </ng-container>
+                            <ng-template #isAdmin>
+                                <li>
+                                    <a class="dropdown-item fw-semibold text-uppercase text-black" routerLink="/all-orders" routerLinkActive="active">
+                                        All Orders
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item fw-semibold text-uppercase text-black" routerLink="/my-products" routerLinkActive="active">
+                                        My Products
+                                    </a>
+                                </li>
+                            </ng-template>
+                        </ul>
                     </li>
-                      
-
+                    
+                    <li class="nav-item" *ngIf="isLoggedIn">
+                        <a class="nav-link fw-semibold text-uppercase text-black me-1" (click)="logout()">
+                            Logout
+                        </a>
+                    </li>
+                    <li class="nav-item" *ngIf="!isLoggedIn">
+                        <a class="nav-link position-relative" routerLink="/login" routerLinkActive="active">
+                            <i class="fa fa-cart-plus fs-5" style="color: #202122;"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ getCartCount() }}
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item" *ngIf="isLoggedIn">
+                        <a class="nav-link position-relative" routerLink="/cart" routerLinkActive="active">
+                            <i class="fa fa-cart-plus fs-5" style="color: #202122;"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ getCartCount() }}
+                            </span>
+                        </a>
+                    </li>
                 </ul>
-
             </div>
         </div>
     </nav>
 </header>
 <section id="product">
-    <div class ="container">
+    <div class="container">
         <router-outlet></router-outlet>
     </div>
 </section>

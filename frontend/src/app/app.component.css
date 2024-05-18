@@ -8,16 +8,18 @@
 }
 
 a:hover {
-    color: red !important;
+    color: red;
 }
 
-.dropdown:hover {
+/* Adjust dropdown hover */
+.nav-item.dropdown:hover > .dropdown-menu {
     display: block;
     margin-top: 0;
 }
 
+/* Adjust box-shadow for reusable class */
 .box-shadow {
-    box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2), 0 4px 15px 0 rgba(0,0,0,0.19);
+    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.2), 0 4px 15px 0 rgba(0, 0, 0, 0.19);
 }
 
 .img-fluid {
