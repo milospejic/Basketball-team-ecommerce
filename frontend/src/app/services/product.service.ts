@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CartProduct } from '../models/cartProduct';
@@ -18,6 +18,14 @@ export class ProductService {
 
   getProductById(id: string): Observable<Product> {
     return this.http.get<Product>(`http://localhost:5259/api/product/${id}`);
+  }
+
+  getProductsByAdminId(id: string): Observable<Product> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.get<Product>(`http://localhost:5259/api/product/admin/${id}`, {headers });
   }
 
   addToCart(id: string){

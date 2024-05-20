@@ -13,6 +13,14 @@ export class OrderService {
   constructor(private http: HttpClient) { }
 
   productsInOrder: ProductsInOrder = new ProductsInOrder();
+
+  getAllOrders(): Observable<any[]>{
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.get<any[]>("http://localhost:5259/api/order", {headers})
+  }
   
   createOrder(cart: CartProduct[]): Observable<any> {
     console.log("usao");

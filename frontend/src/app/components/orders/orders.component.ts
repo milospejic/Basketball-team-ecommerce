@@ -29,7 +29,6 @@ export class OrdersComponent implements OnInit {
 
   deleteOrder(orderId: string): void {
     this.orderService.deleteOrder(orderId).subscribe(() => {
-      // Remove the order from the list
       this.orders = this.orders.filter(order => order.orderId !== orderId);
     });
   }
