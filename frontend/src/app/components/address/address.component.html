@@ -1,1 +1,67 @@
-<p>address works!</p>
+<div class="container mt-4">
+    <div *ngIf="isAdding">
+      <h2>Add Address</h2>
+      <div class="mb-3">
+        <label for="addStreet" class="form-label">Street:</label>
+        <input type="text" id="addStreet" class="form-control" [(ngModel)]="address.street">
+      </div>
+      <div class="mb-3">
+        <label for="addStreetNumber" class="form-label">Street Number:</label>
+        <input type="text" id="addStreetNumber" class="form-control" [(ngModel)]="address.streetNumber">
+      </div>
+      <div class="mb-3">
+        <label for="addTown" class="form-label">Town:</label>
+        <input type="text" id="addTown" class="form-control" [(ngModel)]="address.town">
+      </div>
+      <div class="mb-3">
+        <label for="addCountry" class="form-label">Country:</label>
+        <input type="text" id="addCountry" class="form-control" [(ngModel)]="address.country">
+      </div>
+      <button (click)="addAddress()" class="btn btn-success">Add Address</button>
+    </div>
+  
+    <div *ngIf="!isAdding">
+      <h2>Address</h2>
+      <div class="mb-3">
+        <label for="street" class="form-label">Street:</label>
+        <input type="text" id="street" class="form-control" [(ngModel)]="address.street" disabled>
+      </div>
+      <div class="mb-3">
+        <label for="streetNumber" class="form-label">Street Number:</label>
+        <input type="text" id="streetNumber" class="form-control" [(ngModel)]="address.streetNumber" disabled>
+      </div>
+      <div class="mb-3">
+        <label for="town" class="form-label">Town:</label>
+        <input type="text" id="town" class="form-control" [(ngModel)]="address.town" disabled>
+      </div>
+      <div class="mb-3">
+        <label for="country" class="form-label">Country:</label>
+        <input type="text" id="country" class="form-control" [(ngModel)]="address.country" disabled>
+      </div>
+  
+      <button *ngIf="!isUpdating" (click)="isUpdating = true" class="btn btn-primary">Update Address</button>
+      <button *ngIf="!isUpdating" (click)="deleteAddress()" class="btn btn-danger">Delete Address</button>
+  
+      <div *ngIf="isUpdating" class="mt-3">
+        <div class="mb-3">
+          <label for="updateStreet" class="form-label">Street:</label>
+          <input type="text" id="updateStreet" class="form-control" [(ngModel)]="address.street">
+        </div>
+        <div class="mb-3">
+          <label for="updateStreetNumber" class="form-label">Street Number:</label>
+          <input type="text" id="updateStreetNumber" class="form-control" [(ngModel)]="address.streetNumber">
+        </div>
+        <div class="mb-3">
+          <label for="updateTown" class="form-label">Town:</label>
+          <input type="text" id="updateTown" class="form-control" [(ngModel)]="address.town">
+        </div>
+        <div class="mb-3">
+          <label for="updateCountry" class="form-label">Country:</label>
+          <input type="text" id="updateCountry" class="form-control" [(ngModel)]="address.country">
+        </div>
+        <button (click)="updateAddress()" class="btn btn-success">Save</button>
+        <button (click)="isUpdating = false" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+  

@@ -8,6 +8,6 @@
         public string Email { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string PhoneNumber { get; set; }
-        public AddressDto Address { get; set; }
+        public Guid AddressId { get; set; }
     }
 }

@@ -35,7 +35,7 @@ public class UserController : ControllerBase
 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User,Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUserById(Guid id)
     {
