@@ -5,6 +5,8 @@ import { Address } from '../../models/address';
 import { AddressService } from '../../services/address.service';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user';
+import { AddressDialogComponent } from '../dialogs/address-dialog/address-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-address',
@@ -17,9 +19,13 @@ export class AddressComponent implements OnInit {
   isUpdating: boolean = false;
   isAdding: boolean = false;
 
-  constructor(private addressService: AddressService, private userService: UserService, private authService: AuthService, private router: Router) { }
+  constructor(private addressService: AddressService, private userService: UserService, private authService: AuthService, private router: Router, private dialog: MatDialog) { }
 
   ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
     this.authService.getCurrentUser().subscribe(currentUser => {
       this.userService.getUserById(currentUser.id).subscribe(user => {
         this.user = user;
@@ -33,7 +39,6 @@ export class AddressComponent implements OnInit {
       });
     });
   }
-
   updateAddress(): void {
     this.addressService.updateAddress(this.address).subscribe(() => {
       this.isUpdating = false;
@@ -42,7 +47,7 @@ export class AddressComponent implements OnInit {
 
   deleteAddress(): void {
     this.addressService.deleteAddress(this.address.addressId).subscribe(() => {
-      this.router.navigate(['/address']); 
+      this.router.navigate(['/profile']); 
     });
   }
 
@@ -53,6 +58,26 @@ export class AddressComponent implements OnInit {
         this.isAdding = false;
         this.router.navigate(['/profile']);
       });
+    });
+  }
+
+  public openDialog(
+    flag: number,
+    addressId?: string,
+    street?: string,
+    streetNumber?: string,
+    town?: string,
+    country?: string
+  ): void {
+    const dialogRef = this.dialog.open(AddressDialogComponent, {
+      data: { addressId, street, streetNumber, town, country }
+    });
+    dialogRef.componentInstance.flag = flag;
+    dialogRef.afterClosed().subscribe(result => {
+      if (result == 1) {
+        
+          this.loadData();
+      }
     });
   }
 }

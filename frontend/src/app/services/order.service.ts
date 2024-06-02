@@ -23,8 +23,6 @@ export class OrderService {
   }
   
   createOrder(cart: CartProduct[]): Observable<any> {
-    console.log("usao");
-    console.log(localStorage.getItem('token'));
     this.productsInOrder.productsInOrder = cart;
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -39,6 +37,15 @@ export class OrderService {
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
     return this.http.delete(`http://localhost:5259/api/order/${orderId}`, { headers });
+  }
+
+  setStatusSent(id: string):Observable<Order>{
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.patch<Order>(`http://localhost:5259/api/order/sent/${id}`, { headers });
+
   }
 
   getOrdersByUser(userId: string): Observable<Order[]> {

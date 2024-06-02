@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using backend.Data.Repository;
-using backend.Models;
 using backend.Models.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -135,6 +134,40 @@ public class OrderController : ControllerBase
         }
 
         await orderRepository.PayOrder(orderId);
+        var updatedOrder = await orderRepository.GetOrderById(orderId);
+        return Ok(mapper.Map<OrderDto>(updatedOrder));
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPatch("sent/{orderId}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> SetOrderStatusToSent(Guid orderId)
+    {
+        var order = await orderRepository.GetOrderById(orderId);
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        await orderRepository.SetStatusSent(orderId);
+        var updatedOrder = await orderRepository.GetOrderById(orderId);
+        return Ok(mapper.Map<OrderDto>(updatedOrder));
+    }
+
+    [Authorize(Roles = "User")]
+    [HttpPatch("delivered/{orderId}")]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> SetOrderStatusToDelivered(Guid orderId)
+    {
+        var order = await orderRepository.GetOrderById(orderId);
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        await orderRepository.SetStatusDelivered(orderId);
         var updatedOrder = await orderRepository.GetOrderById(orderId);
         return Ok(mapper.Map<OrderDto>(updatedOrder));
     }

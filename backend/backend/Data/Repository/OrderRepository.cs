@@ -396,6 +396,42 @@ namespace backend.Data.Repository
             order.isPaid = true;
             await context.SaveChangesAsync();
         }
+
+        public async Task SetStatusSent(Guid orderId)
+        {
+            var order = await context.OrderTable.FindAsync(orderId);
+            if (order == null)
+            {
+                throw new ArgumentException("Order not found");
+            }
+            if (order.isPaid == true && order.OrderStatus == "Pending")
+            {
+                order.OrderStatus = "Sent";
+            }
+            else
+            {
+                throw new ArgumentException("Order status cant be set to Sent ");
+            }
+            await context.SaveChangesAsync();
+        }
+
+        public async Task SetStatusDelivered(Guid orderId)
+        {
+            var order = await context.OrderTable.FindAsync(orderId);
+            if (order == null)
+            {
+                throw new ArgumentException("Order not found");
+            }
+            if (order.isPaid == true && order.OrderStatus == "Sent")
+            {
+                order.OrderStatus = "Delivered";
+            }
+            else
+            {
+                throw new ArgumentException("Order status cant be set to Delivered ");
+            }
+            await context.SaveChangesAsync();
+        }
     }
 
 }

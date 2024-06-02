@@ -4,7 +4,7 @@ export class User {
     surname!: string;
     email!: string;
     password!: string;
-    dateOfBirth!: Date | null ;
+    dateOfBirth!: Date | undefined ;
     phoneNumber!: string;
     addressId!: string;
 

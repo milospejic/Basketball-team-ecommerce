@@ -1,15 +1,15 @@
 export class Product {
-    productId!: String;
-    productName!: String; 
-    description!: String; 
-    image!: String; 
-    brand!: String; 
-    category!: String; 
-    size!: String; 
+    productId!: string;
+    productName!: string; 
+    description!: string; 
+    image!: string; 
+    brand!: string; 
+    category!: string; 
+    size!: string; 
     price!: number; 
     totalRating!: number; 
     quantity!: number; 
     numOfReviews!: number; 
-    adminId!: String; 
-    discountId!: String; 
+    adminId!: string; 
+    discountId!: string; 
 }

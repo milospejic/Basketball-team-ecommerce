@@ -1,39 +1,36 @@
 <section id="product">
-    <div class="container">
-      <div class="row">
-        <div class="col-12">
-          <div class="productHeading text-center">
-            <h2 class="mb-3">My products</h2>
-            
-          </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="productHeading text-center">
+          <h2 class="mb-3">My products</h2>
+          <button class="btn btn-lg btn-success fw-bold float-end" (click)="openDialog(1)">Create Product +</button>
         </div>
-        <div class="col-12">
-          <div class="row mt-3 g-3">
-            <div class="col-lg-3" *ngFor="let product of productList">
-              <div class="box-shadow product-card">
-                <div class="card">
-                  <img class="img-fluid card-img-top" style="height: 250px;" [src]="product.image" class="card-img-top" alt="...">
-                  <div class="card-body">
-                    <h5 class="card-title">{{product.productName}}</h5>
-                    <p class="card-text">
-                      <span class="text-danger fw-semibold me-2">{{product.price}} RSD</span>
-                    </p>
-                    <span *ngFor="let star of [1, 2, 3, 4, 5]" class="me-0">
-                      <i class="fa fa-star" [ngClass]="{'fa-star-half': star-0.5 === product.totalRating, 'fa-star': star <= product.totalRating, 'fa-star-o': star > product.totalRating}"></i>
-                    </span>
-                    <div class="row">
-                      <div class="col-5">
-
+      </div>
+      <div class="col-12">
+        <div class="row mt-3 g-3">
+          <div class="col-lg-3" *ngFor="let product of productList">
+            <div class="box-shadow product-card">
+              <div class="card">
+                <img class="img-fluid card-img-top" style="height: 250px;" [src]="product.image" class="card-img-top" alt="...">
+                <div class="card-body">
+                  <h5 class="card-title">{{product.productName}}</h5>
+                  <p class="card-text">
+                    <span class="text-danger fw-semibold me-2">{{product.price}} RSD</span>
+                  </p>
+                  <span *ngFor="let star of [1, 2, 3, 4, 5]" class="me-0">
+                    <i class="fa fa-star" [ngClass]="{'fa-star-half': star-0.5 === product.totalRating, 'fa-star': star <= product.totalRating, 'fa-star-o': star > product.totalRating}"></i>
+                  </span>
+                  <div class="row">
+                    <div class="col-5">
+                    </div>
+                    <div class="row mt-3">
+                      <div class="col-6 text-end">
+                        <button class="btn btn-sm btn-success fw-bold" (click)="openDialog(2,product.productId,product.productName,product.description,product.image,product.brand,product.category,product.size,product.price,product.quantity,product.discountId)">Update</button>
                       </div>
-                      <div class="row mt-3">
-                        <div class="col-6 text-end">
-                          <button class="btn btn-sm btn-success fw-bold" (click)="updateProduct(product.productId)">Update</button>
-                        </div>
-                        <div class="col-6">
-                          <button class="btn btn-sm btn-danger fw-bold" (click)="deleteProduct(product.productId)">Delete</button>
-                        </div>
+                      <div class="col-6">
+                        <button class="btn btn-sm btn-danger fw-bold" (click)="openDialog(3,product.productId,product.productName,product.description,product.image,product.brand,product.category,product.size,product.price,product.quantity,product.discountId)">Delete</button>
                       </div>
-                    
                     </div>
                   </div>
                 </div>
@@ -43,5 +40,5 @@
         </div>
       </div>
     </div>
-  </section>
-  
+  </div>
+</section>

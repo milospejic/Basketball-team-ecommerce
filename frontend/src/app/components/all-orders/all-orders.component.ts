@@ -16,14 +16,19 @@ export class AllOrdersComponent {
   constructor(private orderService: OrderService, private authService: AuthService, private userService: UserService) { }
 
   ngOnInit(): void {
-    
+    this.loadOrders();
+  }
+
+  loadOrders(): void {
     this.orderService.getAllOrders().subscribe(orders => {
       this.orders = orders;
     });
-  
   }
-
-  
+  updateStatus(orderId: string): void {
+    this.orderService.setStatusSent(orderId).subscribe(() => {
+      this.loadOrders();
+    });
+  }
 
   deleteOrder(orderId: string): void {
     this.orderService.deleteOrder(orderId).subscribe(() => {

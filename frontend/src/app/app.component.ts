@@ -1,8 +1,7 @@
-import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ProductService } from './services/product.service';
 import { AuthService } from './services/auth.service';
 import { Router } from '@angular/router';
-import { UserService } from './services/user.service';
 import { CurrentUser } from './models/currentUser';
 
 @Component({
@@ -16,36 +15,23 @@ export class AppComponent implements OnInit {
   isUser = false;
 
   constructor(
-    private productService: ProductService, 
+    private productService: ProductService,
     private authService: AuthService,
-    private userService: UserService, 
     private router: Router
   ) {}
-  
 
   ngOnInit(): void {
-    this.checkLoginStatus();
-  }
-  
-
-  private checkLoginStatus(): void {
-    console.log(this.isLoggedIn);
-    this.isLoggedIn = this.authService.isLoggedIn();
-    console.log(this.isLoggedIn);
-    if(this.isLoggedIn){
-      this.checkUserRole();
-    }
-
+    this.authService.isLoggedIn.subscribe(status => {
+      this.isLoggedIn = status;
+      if (this.isLoggedIn) {
+        this.checkUserRole();
+      }
+    });
   }
 
   private checkUserRole(): void {
     this.authService.getCurrentUser().subscribe((user: CurrentUser) => {
-      console.log(user.role);
-      if(user.role == "User"){
-        this.isUser = true;
-      }else{
-        this.isUser = false;
-      }
+      this.isUser = user.role === "User";
     });
   }
 
@@ -56,6 +42,5 @@ export class AppComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/']);
-    this.checkLoginStatus();  // Update the login status after logging out
   }
 }

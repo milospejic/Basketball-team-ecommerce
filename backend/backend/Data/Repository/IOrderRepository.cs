@@ -12,5 +12,9 @@ namespace backend.Data.Repository
         Task<IEnumerable<OrderDto>> GetOrdersByUserId(Guid userId);
         Task<IEnumerable<OrderDto>> GetAllOrders(int page, int pageSize, string sortBy, string sortOrder);
         Task PayOrder(Guid orderId);
+        Task SetStatusSent(Guid orderId);
+
+        Task SetStatusDelivered(Guid orderId);
+
     }
 }

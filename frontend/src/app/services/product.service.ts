@@ -20,6 +20,29 @@ export class ProductService {
     return this.http.get<Product>(`http://localhost:5259/api/product/${id}`);
   }
 
+  createProduct(product: Product): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.post<any>('http://localhost:5259/api/product', product, { headers });
+  }
+  updateProduct(product: Product): Observable<any>{
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.put<any>(`http://localhost:5259/api/product/${product.productId}`, product, {headers});
+  }
+
+  deleteProduct(id: string): Observable<any>{
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    });
+    return this.http.delete<any>(`http://localhost:5259/api/product/${id}`, {headers});
+  }
+
   getProductsByAdminId(id: string): Observable<Product> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',

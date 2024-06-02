@@ -2,34 +2,70 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { CurrentUser } from '../../models/currentUser';
 import { ProductService } from '../../services/product.service';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { ProductDialogComponent } from '../dialogs/product-dialog/product-dialog.component';
 
 @Component({
   selector: 'app-my-products',
   templateUrl: './my-products.component.html',
-  styleUrl: './my-products.component.css'
+  styleUrls: ['./my-products.component.css']
 })
 export class MyProductsComponent implements OnInit {
-deleteProduct(id: string) {
-throw new Error('Method not implemented.');
-}
-updateProduct(id: string) {
-throw new Error('Method not implemented.');
-}
   adminId = "try";
-  productList: any[]  = []; 
-  constructor(private authService: AuthService, private productService: ProductService){}
+  productList: any[]  = [];
+
+  constructor(
+    private authService: AuthService,
+    private productService: ProductService,
+    private dialog: MatDialog
+  ) {}
+
   ngOnInit(): void {
+    this.loadProducts();
+  }
+
+  loadProducts(): void {
     this.authService.getCurrentUser().subscribe((user: CurrentUser) => {
       this.adminId = user.id;
-      this.productService.getProductsByAdminId(this.adminId).subscribe((result: any)=>{
+      this.productService.getProductsByAdminId(this.adminId).subscribe((result: any) => {
         this.productList = result;
-        //console.log('Products loaded:', this.productList);
       }, (error) => {
         console.error('Error loading products:', error);
       });
     });
   }
 
-  
-  
+  public openDialog(
+    flag: number,
+    productId?: string,
+    productName?: string,
+    description?: string,
+    image?: string,
+    brand?: string,
+    category?: string,
+    size?: string,
+    price?: number,
+    quantity?: number,
+    discountId?: string
+  ): void {
+    const dialogRef = this.dialog.open(ProductDialogComponent, {
+      data: { productId,
+        productName,
+        description,
+        image,
+        brand,
+        category,
+        size,
+        price,
+        quantity,
+        discountId }
+    });
+    dialogRef.componentInstance.flag = flag;
+    dialogRef.afterClosed().subscribe(result => {
+      if (result == 1) {
+        
+          this.loadProducts();
+      }
+    });
+  }
 }

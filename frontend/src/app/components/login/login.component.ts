@@ -10,14 +10,14 @@ import { AuthService } from '../../services/auth.service';
 export class LoginComponent {
   email!: string;
   password!: string;
-  errorMessage: string | null = null; // Initialize errorMessage to null
+  errorMessage: string | null = null;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   login(): void {
     this.authService.login(this.email, this.password).subscribe({
       next: () => {
-        this.router.navigate(['/']); 
+        this.router.navigate(['/home']);
       },
       error: (error) => {
         console.error('Login failed: ', error);
@@ -30,4 +30,3 @@ export class LoginComponent {
     });
   }
 }
-

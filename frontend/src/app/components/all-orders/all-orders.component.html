@@ -23,7 +23,7 @@
           <td>{{ order.userId}}</td>
           <td>{{ order.isPaid}}</td>
           <td>
-            <button *ngIf="!order.isPaid" class="btn btn-success btn-sm mr-2">Update status</button>
+            <button *ngIf="!order.isPaid" class="btn btn-success btn-sm mr-2" (click)="updateStatus(order.orderId)">Update status</button>
           </td>
         </tr>
       </tbody>

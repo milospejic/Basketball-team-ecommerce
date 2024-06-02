@@ -1,39 +1,38 @@
 <div class="container mt-4">
-    <div *ngIf="user">
-      <h2>Profile</h2>
+  <div *ngIf="user">
+    <h2>Profile</h2>
+    <div class="mb-3">
+      <label for="name" class="form-label">Name:</label>
+      <input type="text" id="name" class="form-control" [(ngModel)]="user.name" disabled>
+    </div>
+    <div class="mb-3">
+      <label for="surname" class="form-label">Surname:</label>
+      <input type="text" id="surname" class="form-control" [(ngModel)]="user.surname" disabled>
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email:</label>
+      <input type="email" id="email" class="form-control" [(ngModel)]="user.email" disabled>
+    </div>
+    <div class="mb-3">
+      <label for="dob" class="form-label">Date of Birth:</label>
+      <input type="text" id="dob" class="form-control" [(ngModel)]="user.dateOfBirth" disabled>
+    </div>
+    <div class="mb-3">
+      <label for="phone" class="form-label">Phone Number:</label>
+      <input type="text" id="phone" class="form-control" [(ngModel)]="user.phoneNumber" disabled>
+    </div>
+    <button *ngIf="!isUpdating" (click)="isUpdating = true" class="btn btn-primary">Update Profile</button>
+    <button *ngIf="!isUpdating" (click)="deleteUser()" class="btn btn-danger">Delete Profile</button>
+
+    <div *ngIf="isUpdating" class="mt-3">
+      <!-- Form for updating user profile -->
       <div class="mb-3">
-        <label for="name" class="form-label">Name:</label>
-        <input type="text" id="name" class="form-control" [(ngModel)]="user.name" disabled>
+        <label for="updateName" class="form-label">Name:</label>
+        <input type="text" id="updateName" class="form-control" [(ngModel)]="user.name">
       </div>
-      <div class="mb-3">
-        <label for="surname" class="form-label">Surname:</label>
-        <input type="text" id="surname" class="form-control" [(ngModel)]="user.surname" disabled>
-      </div>
-      <div class="mb-3">
-        <label for="email" class="form-label">Email:</label>
-        <input type="email" id="email" class="form-control" [(ngModel)]="user.email" disabled>
-      </div>
-      <div class="mb-3">
-        <label for="dob" class="form-label">Date of Birth:</label>
-        <input type="text" id="dob" class="form-control" [(ngModel)]="user.dateOfBirth" disabled>
-      </div>
-      <div class="mb-3">
-        <label for="phone" class="form-label">Phone Number:</label>
-        <input type="text" id="phone" class="form-control" [(ngModel)]="user.phoneNumber" disabled>
-      </div>
-      <button *ngIf="!isUpdating" (click)="isUpdating = true" class="btn btn-primary">Update Profile</button>
-      <button *ngIf="!isUpdating" (click)="deleteUser()" class="btn btn-danger">Delete Profile</button>
-  
-      <div *ngIf="isUpdating" class="mt-3">
-        <!-- Form for updating user profile -->
-        <div class="mb-3">
-          <label for="updateName" class="form-label">Name:</label>
-          <input type="text" id="updateName" class="form-control" [(ngModel)]="user.name">
-        </div>
-        <!-- Add other input fields for other properties -->
-        <button (click)="updateUser()" class="btn btn-success">Save</button>
-        <button (click)="isUpdating = false" class="btn btn-secondary">Cancel</button>
-      </div>
+      <!-- Add other input fields for other properties -->
+      <button (click)="updateUser()" class="btn btn-success">Save</button>
+      <button (click)="isUpdating = false" class="btn btn-secondary">Cancel</button>
     </div>
   </div>
-  
+</div>
