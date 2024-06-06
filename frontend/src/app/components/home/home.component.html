@@ -5,13 +5,13 @@
           <div class="productHeading text-center">
             <h2 class="mb-3">Get our exclusive products</h2>
             <ul class="list-unstyled d-flex justify-content-center">
-              <li><a href="#" class="m-4 text-decoration-none text-danger fw-semibold">All</a></li>
-              <li><a href="#" class="m-4 text-decoration-none fw-semibold text-black">Jerseys</a></li>
-              <li><a href="#" class="m-4 text-decoration-none fw-semibold text-black">Shorts</a></li>
-              <li><a href="#" class="m-4 text-decoration-none fw-semibold text-black">T-Shirts</a></li>
-              <li><a href="#" class="m-4 text-decoration-none fw-semibold text-black">Season Tickets</a></li>
-              <li><a href="#" class="m-4 text-decoration-none fw-semibold text-black">Caps</a></li>
-              <li><a href="#" class="m-4 text-decoration-none fw-semibold text-black">Hoodies</a></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadAllProducts()">All</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Jersey')">Jerseys</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Short')">Shorts</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('T-Shirt')">T-Shirts</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('SeasonTicket')">Season Tickets</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Cap')">Caps</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Hoodie')">Hoodies</button></li>
             </ul>
           </div>
         </div>

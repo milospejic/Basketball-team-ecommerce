@@ -14,7 +14,11 @@ export class ProductService {
   constructor(private http: HttpClient) { }
     
   getAllProducts(): Observable<any[]>{
-    return this.http.get<any[]>("https://localhost:7261/api/product")
+    return this.http.get<any[]>("https://localhost:7261/api/product");
+  }
+
+  getAllProductsByCategory(id: string): Observable<any[]>{
+    return this.http.get<any[]>("https://localhost:7261/api/product/category");
   }
 
   getProductById(id: string): Observable<Product> {
