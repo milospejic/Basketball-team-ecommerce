@@ -11,9 +11,9 @@ namespace backend.Models.Dtos
         public string Category { get; set; }
         public string? Size { get; set; }
         public double Price { get; set; }
-        public double TotalRating { get; set; }
+        //public double TotalRating { get; set; }
         public int Quantity { get; set; }
-        public int NumOfReviews { get; set; }
+       // public int NumOfReviews { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

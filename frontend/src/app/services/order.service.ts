@@ -44,7 +44,7 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.patch<Order>(`https://localhost:7261/api/order/sent/${id}`, { headers });
+    return this.http.patch<Order>(`https://localhost:7261/api/order/sent/${id}`,{}, { headers });
 
   }
 

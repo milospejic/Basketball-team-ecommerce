@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CartProduct } from '../models/cartProduct';
 import { Product } from '../models/product';
+import { ProductUpdate } from '../models/productUpdate';
 
 @Injectable({
   providedIn: 'root'
@@ -27,12 +28,12 @@ export class ProductService {
     });
     return this.http.post<any>('https://localhost:7261/api/product', product, { headers });
   }
-  updateProduct(product: Product): Observable<any>{
+  updateProduct(id: String ,product: ProductUpdate): Observable<any>{
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.put<any>(`https://localhost:7261/api/product/${product.productId}`, product, {headers});
+    return this.http.put<any>(`https://localhost:7261/api/product/${id}`, product, {headers});
   }
 
   deleteProduct(id: string): Observable<any>{

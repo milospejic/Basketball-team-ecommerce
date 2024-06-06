@@ -3,66 +3,66 @@
   <h3 mat-dialog-title *ngIf="flag == 2">Updating product</h3>
   <h3 mat-dialog-title *ngIf="flag == 3">Deleting product</h3>
 
-  <form class="mat-dialog-content" #formControl="ngForm">
+  <form [formGroup]="productForm" class="mat-dialog-content">
     <div class="form">
       <mat-form-field class="form-field">
-        <input matInput placeholder="Name" name="Name" [disabled]="flag==3" [(ngModel)]="data.productName" required />
+        <input matInput placeholder="Name" formControlName="productName" [readonly]="flag == 3" required />
       </mat-form-field>
     </div>
 
     <div class="form">
       <mat-form-field class="form-field">
-        <input matInput placeholder="Description" name="Description" [disabled]="flag==3" [(ngModel)]="data.description" required />
+        <input matInput placeholder="Description" formControlName="description" [readonly]="flag == 3" required />
       </mat-form-field>
     </div>
 
     <div class="form">
       <mat-form-field class="form-field">
-        <input matInput placeholder="Image" name="Image" [disabled]="flag==3" [(ngModel)]="data.image" required />
+        <input matInput placeholder="Image" formControlName="image" [readonly]="flag == 3" required />
       </mat-form-field>
     </div>
 
     <div class="form">
       <mat-form-field class="form-field">
-          <input matInput placeholder="Brand" name="Brand" [disabled]="flag==3" [(ngModel)]="data.brand"  />
+        <input matInput placeholder="Brand" formControlName="brand" [readonly]="flag == 3" />
       </mat-form-field>
     </div>
 
     <div class="form">
       <mat-form-field class="form-field">
-        <input matInput placeholder="Category" name="Category" [disabled]="flag==3" [(ngModel)]="data.category" required />
+        <input matInput placeholder="Category" formControlName="category" [readonly]="flag == 3" required />
       </mat-form-field>
     </div>
 
     <div class="form">
       <mat-form-field class="form-field">
-          <input matInput placeholder="Size" name="Size" [disabled]="flag==3" [(ngModel)]="data.size"  />
+        <input matInput placeholder="Size" formControlName="size" [readonly]="flag == 3" />
       </mat-form-field>
     </div>
 
     <div class="form">
       <mat-form-field class="form-field">
-        <input matInput placeholder="Price" name="Price" [disabled]="flag==3" [(ngModel)]="data.price" required />
+        <input matInput type="number" placeholder="Price" formControlName="price" [readonly]="flag == 3" required />
       </mat-form-field>
     </div>
 
     <div class="form">
       <mat-form-field class="form-field">
-          <input matInput placeholder="Quantity" name="Discount" [disabled]="flag==3" [(ngModel)]="data.quantity"  />
+        <input matInput type="number" placeholder="Quantity" formControlName="quantity" [readonly]="flag == 3" />
       </mat-form-field>
     </div>
 
     <div class="form">
       <mat-form-field class="form-field">
-          <input matInput placeholder="Discount" name="Discount" [disabled]="flag==3" [(ngModel)]="data.discountId"  />
+        <input matInput placeholder="Discount" formControlName="discountId" [readonly]="flag == 3" />
       </mat-form-field>
     </div>
   </form>
 
   <div class="mat-dialog-actions form-field">
-      <button mat-raised-button color="primary" *ngIf="flag == 1" type="submit" mat-dialog-close="1" [disabled]="!formControl.valid" (click)="add()">Create</button>
-      <button mat-raised-button color="primary" *ngIf="flag == 2" type="submit" mat-dialog-close="1" [disabled]="!formControl.valid" (click)="update()">Update</button>
-      <button mat-raised-button color="primary" *ngIf="flag == 3" mat-dialog-close="1" (click)="delete()">Delete</button>
-      <button mat-raised-button color="warn" (click)="cancel()">Cancel</button>
+    <button mat-raised-button color="primary" *ngIf="flag == 1" type="submit" mat-dialog-close="1" [disabled]="!productForm.valid" (click)="add()">Create</button>
+    <button mat-raised-button color="primary" *ngIf="flag == 2" type="submit" mat-dialog-close="1" [disabled]="!productForm.valid" (click)="update()">Update</button>
+    <button mat-raised-button color="primary" *ngIf="flag == 3" mat-dialog-close="1" (click)="delete()">Delete</button>
+    <button mat-raised-button color="warn" (click)="cancel()">Cancel</button>
   </div>
 </div>

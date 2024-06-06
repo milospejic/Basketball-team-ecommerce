@@ -48,23 +48,26 @@ export class MyProductsComponent implements OnInit {
     quantity?: number,
     discountId?: string
   ): void {
-    const dialogRef = this.dialog.open(ProductDialogComponent, {
-      data: { productId,
-        productName,
-        description,
-        image,
-        brand,
-        category,
-        size,
-        price,
-        quantity,
-        discountId }
-    });
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.hasBackdrop = true; // Set this to make the dialog modal
+    dialogConfig.data = {
+      productId,
+      productName,
+      description,
+      image,
+      brand,
+      category,
+      size,
+      price,
+      quantity,
+      discountId
+    };
+  
+    const dialogRef = this.dialog.open(ProductDialogComponent, dialogConfig);
     dialogRef.componentInstance.flag = flag;
     dialogRef.afterClosed().subscribe(result => {
       if (result == 1) {
-        
-          this.loadProducts();
+        this.loadProducts();
       }
     });
   }
