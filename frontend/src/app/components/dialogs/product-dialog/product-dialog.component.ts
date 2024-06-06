@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { Component, Inject } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Product } from '../../../models/product';
@@ -12,49 +12,69 @@ import { ProductService } from '../../../services/product.service';
 })
 export class ProductDialogComponent {
   flag!: number;
+  productForm: FormGroup;
 
   constructor(
     public snackBar: MatSnackBar,
     public dialogRef: MatDialogRef<ProductDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Product,
-    public productService: ProductService
-  ) {}
-
-  public add():void{
-    this.productService.createProduct(this.data).subscribe(
-      () => {
-        this.snackBar.open('Product added', 'Ok', {duration:4500});
-      }
-    ),
-    (error: Error)=> {
-      console.log(error.name + ' ' + error.message);
-      this.snackBar.open('Dogodila se greska', 'Ok',{duration:2500});
-    }
-    
+    private fb: FormBuilder,
+    private productService: ProductService
+  ) {
+    this.productForm = this.fb.group({
+      productName: [data.productName, Validators.required],
+      description: [data.description, Validators.required],
+      image: [data.image, Validators.required],
+      brand: [data.brand, Validators.required],
+      category: [data.category, Validators.required],
+      size: [data.size, Validators.required],
+      price: [data.price, Validators.required],
+      quantity: [data.quantity, Validators.required],
+      discountId: [data.discountId, Validators.required]
+    });
   }
 
-  public update(): void {
-    this.productService.updateProduct(this.data).subscribe(
+  public add(): void {
+    this.productService.createProduct(this.productForm.value).subscribe(
       () => {
-        this.snackBar.open('Product was successfully updated', 'Ok', { duration: 4500 });
+        this.snackBar.open('Product added', 'Ok', { duration: 4500 });
+        this.dialogRef.close({ action: 'create' });
       },
       (error: Error) => {
         console.log(error.name + ' ' + error.message);
-        this.snackBar.open('An error has occurred', 'Ok', { duration: 2500 });
+        this.snackBar.open('An error occurred', 'Ok', { duration: 2500 });
+      }
+    );
+  }
+
+  public update(): void {
+    this.productService.updateProduct(this.productForm.value).subscribe(
+      () => {
+        this.snackBar.open('Product updated', 'Ok', { duration: 4500 });
+        this.dialogRef.close({ action: 'update' });
+      },
+      (error: Error) => {
+        console.log(error.name + ' ' + error.message);
+        this.snackBar.open('An error occurred', 'Ok', { duration: 2500 });
       }
     );
   }
 
   public delete(): void {
-    this.productService.deleteProduct(this.data.productId).subscribe(
-      () => {
-        this.snackBar.open('Product was deleted', 'Ok', { duration: 4500 });
-      },
-      (error: Error) => {
-        console.log(error.name + ' ' + error.message);
-        this.snackBar.open('An error has occurred', 'Ok', { duration: 2500 });
-      }
-    );
+    // Add a confirmation dialog before deleting
+    const confirmDelete = confirm('Are you sure you want to delete this product?');
+    if (confirmDelete) {
+      this.productService.deleteProduct(this.data.productId).subscribe(
+        () => {
+          this.snackBar.open('Product deleted', 'Ok', { duration: 4500 });
+          this.dialogRef.close({ action: 'delete' });
+        },
+        (error: Error) => {
+          console.log(error.name + ' ' + error.message);
+          this.snackBar.open('An error occurred', 'Ok', { duration: 2500 });
+        }
+      );
+    }
   }
 
   public cancel(): void {

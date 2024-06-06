@@ -19,7 +19,7 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.get<any[]>("http://localhost:5259/api/order", {headers})
+    return this.http.get<any[]>("https://localhost:7261/api/order", {headers})
   }
   
   createOrder(cart: CartProduct[]): Observable<any> {
@@ -28,7 +28,7 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.post<any>('http://localhost:5259/api/order', this.productsInOrder, { headers });
+    return this.http.post<any>('https://localhost:7261/api/order', this.productsInOrder, { headers });
   }
 
   deleteOrder(orderId: string): Observable<any> {
@@ -36,7 +36,7 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.delete(`http://localhost:5259/api/order/${orderId}`, { headers });
+    return this.http.delete(`https://localhost:7261/api/order/${orderId}`, { headers });
   }
 
   setStatusSent(id: string):Observable<Order>{
@@ -44,7 +44,7 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.patch<Order>(`http://localhost:5259/api/order/sent/${id}`, { headers });
+    return this.http.patch<Order>(`https://localhost:7261/api/order/sent/${id}`, { headers });
 
   }
 
@@ -53,6 +53,6 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.get<Order[]>(`http://localhost:5259/api/order/user/${userId}`, { headers });
+    return this.http.get<Order[]>(`https://localhost:7261/api/order/user/${userId}`, { headers });
   }
 }

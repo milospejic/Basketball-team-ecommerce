@@ -4,6 +4,7 @@ import { Order } from '../../models/order';
 import { AuthService } from '../../services/auth.service'; 
 import { UserService } from '../../services/user.service';
 import { CurrentUser } from '../../models/currentUser';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-orders',
@@ -14,7 +15,12 @@ export class OrdersComponent implements OnInit {
 
   orders: Order[] = [];
 
-  constructor(private orderService: OrderService, private authService: AuthService, private userService: UserService) { }
+  constructor(
+    private orderService: OrderService, 
+    private authService: AuthService, 
+    private userService: UserService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.authService.getCurrentUser().subscribe((user: CurrentUser) => {
@@ -25,11 +31,13 @@ export class OrdersComponent implements OnInit {
     });
   }
 
-  
-
   deleteOrder(orderId: string): void {
     this.orderService.deleteOrder(orderId).subscribe(() => {
       this.orders = this.orders.filter(order => order.orderId !== orderId);
     });
+  }
+
+  redirectToCheckout(orderId: string, fullPrice: number): void {
+    this.router.navigate(['/checkout', { orderId, fullPrice }]);
   }
 }

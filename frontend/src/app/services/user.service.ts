@@ -15,7 +15,7 @@ export class UserService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.get<any>("http://localhost:5259/api/user", {headers});
+    return this.http.get<any>("https://localhost:7261/api/user", {headers});
   }
 
   getUserById(id: string): Observable<any>{
@@ -23,7 +23,7 @@ export class UserService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.get<any>(`http://localhost:5259/api/user/${id}`, {headers});
+    return this.http.get<any>(`https://localhost:7261/api/user/${id}`, {headers});
   }
 
   updateUser(user: User): Observable<any>{
@@ -31,7 +31,7 @@ export class UserService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.put<any>(`http://localhost:5259/api/user/${user.userId}`, user, {headers});
+    return this.http.put<any>(`https://localhost:7261/api/user/${user.userId}`, user, {headers});
   }
 
   deleteUser(id: string): Observable<any>{
@@ -39,7 +39,7 @@ export class UserService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.delete<any>(`http://localhost:5259/api/user/${id}`, {headers});
+    return this.http.delete<any>(`https://localhost:7261/api/user/${id}`, {headers});
   }
 
  

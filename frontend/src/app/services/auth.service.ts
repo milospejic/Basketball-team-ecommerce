@@ -51,11 +51,11 @@ export class AuthService {
   }
 
   register(user: any): Observable<any> {
-    return this.http.post<any>('http://localhost:5259/api/user', user);
+    return this.http.post<any>('https://localhost:7261/api/user', user);
   }
 
   login(email: string, password: string): Observable<boolean> {
-    return this.http.post<any>('http://localhost:5259/api/Auth/authenticate', { email, password }).pipe(
+    return this.http.post<any>('https://localhost:7261/api/Auth/authenticate', { email, password }).pipe(
       map(response => {
         if (response && response.token) {
           if (isLocalStorageAvailable()) {
@@ -90,7 +90,7 @@ export class AuthService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.get<CurrentUser>('http://localhost:5259/api/user/current-user', { headers }).pipe(
+    return this.http.get<CurrentUser>('https://localhost:7261/api/user/current-user', { headers }).pipe(
       map(response => {
         if (response && response.role) {
           this.setUserRole(response.role);

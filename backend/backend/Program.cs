@@ -1,13 +1,13 @@
 ﻿using backend.Auth;
 using backend.Data.Context;
 using backend.Data.Repository;
+using backend.Stripe;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = new ConfigurationBuilder()
@@ -16,6 +16,7 @@ var configuration = new ConfigurationBuilder()
     .Build();
 
 builder.Services.AddControllers();
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -48,7 +49,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin",
-        builder => builder.WithOrigins("http://localhost:4200")
+        builder => builder.WithOrigins("https://localhost:4200")
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });
@@ -83,12 +84,29 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IAuth, Auth>();
+builder.Services.AddScoped<IStripeService, StripeService>();
 
 builder.Services.AddAuthorization(auth =>
 {
     auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
         .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
         .RequireAuthenticatedUser().Build());
+});
+
+// Add HTTPS redirection
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.HttpsPort = 7261;
+});
+
+// Configure Kestrel to use HTTPS
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(5259); // HTTP port
+    options.ListenLocalhost(7261, listenOptions =>
+    {
+        listenOptions.UseHttps();
+    }); // HTTPS port
 });
 
 var app = builder.Build();
@@ -99,6 +117,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
 app.UseCors("AllowOrigin"); // Apply CORS policy
 app.UseAuthentication(); // Enable authentication
 app.UseAuthorization(); // Enable authorization

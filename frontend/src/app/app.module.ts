@@ -26,6 +26,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { AddressComponent } from './components/address/address.component';
 import { ProductDialogComponent } from './components/dialogs/product-dialog/product-dialog.component';
 import { AddressDialogComponent } from './components/dialogs/address-dialog/address-dialog.component';
+import { CheckoutComponent } from './components/checkout/checkout.component';
 
 @NgModule({
   declarations: [
@@ -42,8 +43,9 @@ import { AddressDialogComponent } from './components/dialogs/address-dialog/addr
     ProfileComponent,
     AddressComponent,
     ProductDialogComponent,
-    AddressDialogComponent
-  ],
+    AddressDialogComponent,
+    CheckoutComponent
+    ],
   imports: [
     BrowserModule,
     AppRoutingModule,

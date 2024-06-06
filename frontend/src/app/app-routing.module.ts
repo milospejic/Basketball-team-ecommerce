@@ -11,6 +11,7 @@ import { AllOrdersComponent } from './components/all-orders/all-orders.component
 import { ProfileComponent } from './components/profile/profile.component';
 import { AddressComponent } from './components/address/address.component';
 import { MyProductsComponent } from './components/my-products/my-products.component';
+import { CheckoutComponent } from './components/checkout/checkout.component';
 
 const routes: Routes = [
   {
@@ -50,6 +51,9 @@ const routes: Routes = [
   },{
     path: 'my-products',
     component: MyProductsComponent
+  },{
+    path: 'checkout',
+    component: CheckoutComponent
   }
 ];
 

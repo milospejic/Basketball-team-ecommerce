@@ -24,7 +24,7 @@
 
     <div class="form">
       <mat-form-field class="form-field">
-          <input matInput placeholder="Brand" name="Brand" [disabled]="flag==3" [(ngModel)]="data.brand" required />
+          <input matInput placeholder="Brand" name="Brand" [disabled]="flag==3" [(ngModel)]="data.brand"  />
       </mat-form-field>
     </div>
 
@@ -36,7 +36,7 @@
 
     <div class="form">
       <mat-form-field class="form-field">
-          <input matInput placeholder="Size" name="Size" [disabled]="flag==3" [(ngModel)]="data.size" required />
+          <input matInput placeholder="Size" name="Size" [disabled]="flag==3" [(ngModel)]="data.size"  />
       </mat-form-field>
     </div>
 
@@ -48,7 +48,13 @@
 
     <div class="form">
       <mat-form-field class="form-field">
-          <input matInput placeholder="Discount" name="Discount" [disabled]="flag==3" [(ngModel)]="data.discountId" required />
+          <input matInput placeholder="Quantity" name="Discount" [disabled]="flag==3" [(ngModel)]="data.quantity"  />
+      </mat-form-field>
+    </div>
+
+    <div class="form">
+      <mat-form-field class="form-field">
+          <input matInput placeholder="Discount" name="Discount" [disabled]="flag==3" [(ngModel)]="data.discountId"  />
       </mat-form-field>
     </div>
   </form>

@@ -13,11 +13,11 @@ export class ProductService {
   constructor(private http: HttpClient) { }
     
   getAllProducts(): Observable<any[]>{
-    return this.http.get<any[]>("http://localhost:5259/api/product")
+    return this.http.get<any[]>("https://localhost:7261/api/product")
   }
 
   getProductById(id: string): Observable<Product> {
-    return this.http.get<Product>(`http://localhost:5259/api/product/${id}`);
+    return this.http.get<Product>(`https://localhost:7261/api/product/${id}`);
   }
 
   createProduct(product: Product): Observable<any> {
@@ -25,14 +25,14 @@ export class ProductService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.post<any>('http://localhost:5259/api/product', product, { headers });
+    return this.http.post<any>('https://localhost:7261/api/product', product, { headers });
   }
   updateProduct(product: Product): Observable<any>{
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.put<any>(`http://localhost:5259/api/product/${product.productId}`, product, {headers});
+    return this.http.put<any>(`https://localhost:7261/api/product/${product.productId}`, product, {headers});
   }
 
   deleteProduct(id: string): Observable<any>{
@@ -40,7 +40,7 @@ export class ProductService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.delete<any>(`http://localhost:5259/api/product/${id}`, {headers});
+    return this.http.delete<any>(`https://localhost:7261/api/product/${id}`, {headers});
   }
 
   getProductsByAdminId(id: string): Observable<Product> {
@@ -48,7 +48,7 @@ export class ProductService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.get<Product>(`http://localhost:5259/api/product/admin/${id}`, {headers });
+    return this.http.get<Product>(`https://localhost:7261/api/product/admin/${id}`, {headers });
   }
 
   addToCart(id: string){

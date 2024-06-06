@@ -8,6 +8,7 @@
         <th>Status</th>
         <th>Order Date</th>
         <th>Total Price</th>
+        <th>Paid</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -16,10 +17,12 @@
         <td>{{ order.orderId }}</td>
         <td>{{ order.numberOfItems }}</td>
         <td>{{ order.orderStatus }}</td>
-        <td>{{ order.orderDate | date:'short' }}</td>
-        <td>{{ order.totalPrice | currency }}</td>
+        <td>{{ order.orderDate }}</td>
+        <td>{{ order.totalPrice }}</td>
+        <td>{{ order.isPaid }}</td>
+        
         <td>
-          <button *ngIf="!order.isPaid" class="btn btn-success btn-sm mr-2">Pay</button>
+          <button *ngIf="!order.isPaid" class="btn btn-success btn-sm mr-2" (click)="redirectToCheckout(order.orderId, order.totalPrice)">Pay</button>
           <button *ngIf="!order.isPaid" class="btn btn-danger btn-sm" (click)="deleteOrder(order.orderId)">Delete</button>
         </td>
       </tr>
