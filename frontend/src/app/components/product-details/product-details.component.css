@@ -1,0 +1,27 @@
+.product-card {
+  height: 400px; /* Set the desired height for all product cards */
+}
+
+.product-card img {
+  height: 100%; /* Make the image fill the entire height of the card */
+  width: auto; /* Maintain aspect ratio */
+}
+
+.card-body {
+  height: 100%; /* Ensure the card body fills the entire height of the card */
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.card-text {
+  flex-grow: 1; /* Allow the text to expand to fill remaining space */
+}
+
+.btn {
+  margin-top: auto; /* Align buttons to the bottom of the card */
+}

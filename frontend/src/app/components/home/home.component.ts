@@ -49,4 +49,8 @@ export class HomeComponent implements OnInit {
     this.productService.removeFromCart(id);
     console.log('Product removed from cart:', id);
   }
+
+  viewProductDetails(id: string): void {
+    this.router.navigate(['/product', id]);
+  }
 }

@@ -12,6 +12,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { AddressComponent } from './components/address/address.component';
 import { MyProductsComponent } from './components/my-products/my-products.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
+import { ProductDetailsComponent } from './components/product-details/product-details.component';
 
 const routes: Routes = [
   {
@@ -54,6 +55,9 @@ const routes: Routes = [
   },{
     path: 'checkout',
     component: CheckoutComponent
+  },{
+    path: 'product/:id',
+    component: ProductDetailsComponent
   }
 ];
 

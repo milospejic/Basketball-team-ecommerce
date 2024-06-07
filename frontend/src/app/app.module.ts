@@ -27,6 +27,7 @@ import { AddressComponent } from './components/address/address.component';
 import { ProductDialogComponent } from './components/dialogs/product-dialog/product-dialog.component';
 import { AddressDialogComponent } from './components/dialogs/address-dialog/address-dialog.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
+import { ProductDetailsComponent } from './components/product-details/product-details.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { CheckoutComponent } from './components/checkout/checkout.component';
     AddressComponent,
     ProductDialogComponent,
     AddressDialogComponent,
-    CheckoutComponent
+    CheckoutComponent,
+    ProductDetailsComponent
     ],
   imports: [
     BrowserModule,

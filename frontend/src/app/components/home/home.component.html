@@ -20,9 +20,9 @@
             <div class="col-lg-3" *ngFor="let product of productList">
               <div class="box-shadow product-card">
                 <div class="card">
-                  <img class="img-fluid card-img-top" style="height: 250px;" [src]="product.image" class="card-img-top" alt="...">
+                  <img class="img-fluid card-img-top" style="height: 250px;" [src]="product.image" class="card-img-top" alt="..."(click)="viewProductDetails(product.productId)">
                   <div class="card-body">
-                    <h5 class="card-title">{{product.productName}}</h5>
+                    <h5 class="card-title" (click)="viewProductDetails(product.productId)">{{product.productName}}</h5>
                     <p class="card-text">
                       <span class="text-danger fw-semibold me-2">{{product.price}} RSD</span>
                     </p>

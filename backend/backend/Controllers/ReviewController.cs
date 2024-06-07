@@ -20,7 +20,7 @@ public class ReviewController : ControllerBase
         this.userRepository = userRepository;
     }
 
-    [Authorize(Roles = "User,Admin")]
+    [AllowAnonymous]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
