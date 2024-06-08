@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { CurrentUser } from '../../models/currentUser';
 import { ProductService } from '../../services/product.service';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { ProductDialogComponent } from '../dialogs/product-dialog/product-dialog.component';
+import { ProductUpdate } from '../../models/productUpdate';
 
 @Component({
   selector: 'app-my-products',
@@ -11,13 +10,18 @@ import { ProductDialogComponent } from '../dialogs/product-dialog/product-dialog
   styleUrls: ['./my-products.component.css']
 })
 export class MyProductsComponent implements OnInit {
+
+
   adminId = "try";
-  productList: any[]  = [];
+  productList: any[] = [];
+  isUpdating: boolean = false;
+  isAdding: boolean = false;
+  productCreate: ProductUpdate = new ProductUpdate();
+  updatedProduct: any = {};
 
   constructor(
     private authService: AuthService,
-    private productService: ProductService,
-    private dialog: MatDialog
+    private productService: ProductService
   ) {}
 
   ngOnInit(): void {
@@ -35,40 +39,38 @@ export class MyProductsComponent implements OnInit {
     });
   }
 
-  public openDialog(
-    flag: number,
-    productId?: string,
-    productName?: string,
-    description?: string,
-    image?: string,
-    brand?: string,
-    category?: string,
-    size?: string,
-    price?: number,
-    quantity?: number,
-    discountId?: string
-  ): void {
-    const dialogConfig = new MatDialogConfig();
-    dialogConfig.hasBackdrop = true; // Set this to make the dialog modal
-    dialogConfig.data = {
-      productId,
-      productName,
-      description,
-      image,
-      brand,
-      category,
-      size,
-      price,
-      quantity,
-      discountId
-    };
-  
-    const dialogRef = this.dialog.open(ProductDialogComponent, dialogConfig);
-    dialogRef.componentInstance.flag = flag;
-    dialogRef.afterClosed().subscribe(result => {
-      if (result == 1) {
-        this.loadProducts();
-      }
+  add() {
+    this.isAdding=true;
+    this.isUpdating=false;
+  }
+
+  update() {
+    this.isAdding=false;
+    this.isUpdating=true;
+  }
+  updateProduct(product: any): void {
+    this.productService.updateProduct(product.productId, product).subscribe(() => {
+      this.isUpdating = false;
+      this.loadProducts();
     });
+  }
+
+  createProduct() {
+    this.productService.createProduct(this.productCreate).subscribe(() => {
+      this.isAdding = false;
+      this.loadProducts();
+    });
+    }
+
+  deleteProduct(productId: string): void {
+    if (confirm('Are you sure you want to delete this product?')) {
+    this.productService.deleteProduct(productId).subscribe(() => {
+      this.loadProducts();
+    });
+  }
+  }
+
+  cancelUpdate(): void {
+    this.isUpdating = false;
   }
 }

@@ -25,7 +25,7 @@ export class ProductService {
     return this.http.get<Product>(`https://localhost:7261/api/product/${id}`);
   }
 
-  createProduct(product: Product): Observable<any> {
+  createProduct(product: ProductUpdate): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`

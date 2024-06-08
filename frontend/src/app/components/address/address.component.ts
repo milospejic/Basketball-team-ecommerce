@@ -5,7 +5,6 @@ import { Address } from '../../models/address';
 import { AddressService } from '../../services/address.service';
 import { UserService } from '../../services/user.service';
 import { User } from '../../models/user';
-import { AddressDialogComponent } from '../dialogs/address-dialog/address-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({
@@ -61,23 +60,4 @@ export class AddressComponent implements OnInit {
     });
   }
 
-  public openDialog(
-    flag: number,
-    addressId?: string,
-    street?: string,
-    streetNumber?: string,
-    town?: string,
-    country?: string
-  ): void {
-    const dialogRef = this.dialog.open(AddressDialogComponent, {
-      data: { addressId, street, streetNumber, town, country }
-    });
-    dialogRef.componentInstance.flag = flag;
-    dialogRef.afterClosed().subscribe(result => {
-      if (result == 1) {
-        
-          this.loadData();
-      }
-    });
-  }
 }

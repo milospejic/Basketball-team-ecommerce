@@ -4,7 +4,7 @@
       <div class="col-12">
         <div class="productHeading text-center">
           <h2 class="mb-3">My products</h2>
-          <button class="btn btn-lg btn-success fw-bold float-end" (click)="openDialog(1)">Create Product +</button>
+          <button class="btn btn-lg btn-success fw-bold float-end" (click)="add()">Create Product</button>
         </div>
       </div>
       <div class="col-12">
@@ -26,15 +26,51 @@
                     </div>
                     <div class="row mt-3">
                       <div class="col-6 text-end">
-                        <button class="btn btn-sm btn-success fw-bold" (click)="openDialog(2,product.productId,product.productName,product.description,product.image,product.brand,product.category,product.size,product.price,product.quantity,product.discountId)">Update</button>
+                        <button class="btn btn-sm btn-success fw-bold" (click)="update()">Update</button>
                       </div>
                       <div class="col-6">
-                        <button class="btn btn-sm btn-danger fw-bold" (click)="openDialog(3,product.productId,product.productName,product.description,product.image,product.brand,product.category,product.size,product.price,product.quantity,product.discountId)">Delete</button>
+                        <button class="btn btn-sm btn-danger fw-bold" (click)="deleteProduct(product.productId)">Delete</button>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
+            <div *ngIf="isUpdating">
+              <h2>Update Product</h2>
+              <div class="mb-3">
+                <label for="updateProductName" class="form-label">Product name:</label>
+                <input type="text" id="updateProductName" class="form-control" [(ngModel)]="product.productName">
+              </div>
+              <div class="mb-3">
+                <label for="updateDescription" class="form-label"> Description:</label>
+                <input type="text" id="updateDescription" class="form-control" [(ngModel)]="product.description">
+              </div>
+              <div class="mb-3">
+                <label for="updateImage" class="form-label">Image:</label>
+                <input type="text" id="updateImage" class="form-control" [(ngModel)]="product.image">
+              </div>
+              <div class="mb-3">
+                <label for="updateBrand" class="form-label">Brand:</label>
+                <input type="text" id="updateBrand" class="form-control" [(ngModel)]="product.brand">
+              </div>
+              <div class="mb-3">
+                <label for="updateCategory" class="form-label"> Category:</label>
+                <input type="text" id="updateCategory" class="form-control" [(ngModel)]="product.category">
+              </div>
+              <div class="mb-3">
+                <label for="updateSize" class="form-label">Size:</label>
+                <input type="text" id="addSize" class="form-control" [(ngModel)]="product.size">
+              </div>
+              <div class="mb-3">
+                <label for="updatePrice" class="form-label">Price:</label>
+                <input type="number" id="updatePrice" class="form-control" [(ngModel)]="product.price">
+              </div>
+              <div class="mb-3">
+                <label for="updateQuantity" class="form-label">Quantity:</label>
+                <input type="number" id="updateQuantity" class="form-control" [(ngModel)]="product.quantity">
+              </div>
+              <button (click)="updateProduct(product)" class="btn btn-success">Update Product</button>
             </div>
           </div>
         </div>
@@ -42,3 +78,39 @@
     </div>
   </div>
 </section>
+<div *ngIf="isAdding">
+  <h2>Add Product</h2>
+  <div class="mb-3">
+    <label for="addProductName" class="form-label">Product name:</label>
+    <input type="text" id="addProductName" class="form-control" [(ngModel)]="productCreate.productName">
+  </div>
+  <div class="mb-3">
+    <label for="addDescription" class="form-label"> Description:</label>
+    <input type="text" id="addDescription" class="form-control" [(ngModel)]="productCreate.description">
+  </div>
+  <div class="mb-3">
+    <label for="addImage" class="form-label">Image:</label>
+    <input type="text" id="addImage" class="form-control" [(ngModel)]="productCreate.image">
+  </div>
+  <div class="mb-3">
+    <label for="addBrand" class="form-label">Brand:</label>
+    <input type="text" id="addBrand" class="form-control" [(ngModel)]="productCreate.brand">
+  </div>
+  <div class="mb-3">
+    <label for="addCategory" class="form-label"> Category:</label>
+    <input type="text" id="addCategory" class="form-control" [(ngModel)]="productCreate.category">
+  </div>
+  <div class="mb-3">
+    <label for="addSize" class="form-label">Size:</label>
+    <input type="text" id="addSize" class="form-control" [(ngModel)]="productCreate.size">
+  </div>
+  <div class="mb-3">
+    <label for="addPrice" class="form-label">Price:</label>
+    <input type="number" id="addPrice" class="form-control" [(ngModel)]="productCreate.price">
+  </div>
+  <div class="mb-3">
+    <label for="addQuantity" class="form-label">Quantity:</label>
+    <input type="number" id="addQuantity" class="form-control" [(ngModel)]="productCreate.quantity">
+  </div>
+  <button (click)="createProduct()" class="btn btn-success">Add Product</button>
+</div>

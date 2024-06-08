@@ -24,8 +24,6 @@ import { MyProductsComponent } from './components/my-products/my-products.compon
 import { AllOrdersComponent } from './components/all-orders/all-orders.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { AddressComponent } from './components/address/address.component';
-import { ProductDialogComponent } from './components/dialogs/product-dialog/product-dialog.component';
-import { AddressDialogComponent } from './components/dialogs/address-dialog/address-dialog.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { ProductDetailsComponent } from './components/product-details/product-details.component';
 
@@ -43,8 +41,6 @@ import { ProductDetailsComponent } from './components/product-details/product-de
     AllOrdersComponent,
     ProfileComponent,
     AddressComponent,
-    ProductDialogComponent,
-    AddressDialogComponent,
     CheckoutComponent,
     ProductDetailsComponent
     ],

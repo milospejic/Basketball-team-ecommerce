@@ -28,10 +28,11 @@ export class ProfileComponent implements OnInit {
       this.isUpdating = false;
     });
   }
-
+/*
   deleteUser(): void {
     this.userService.deleteUser(this.user.userId).subscribe(() => {
       this.router.navigate(['/login']); 
     });
   }
+    */
 }
