@@ -82,4 +82,8 @@ export class ProductService {
   getCartItemCount(): number {
     return this.cart.reduce((total, product) => total + product.amount, 0);
   }
+
+  searchProducts(query: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`https://localhost:7261/api/product/search?query=${query}`);
+  }
 }

@@ -169,4 +169,16 @@ public class ProductController : ControllerBase
         }
         return Ok(products);
     }
+
+    [HttpGet("search")]
+    [AllowAnonymous]
+    public async Task<ActionResult<IEnumerable<ProductDto>>> SearchProducts(string query, int page = 1, int pageSize = 10)
+    {
+        var products = await productRepository.SearchProducts(query, page, pageSize);
+        if (products == null || products.Count() == 0)
+        {
+            return NoContent();
+        }
+        return Ok(products);
+    }
 }

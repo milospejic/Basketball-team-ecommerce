@@ -118,6 +118,16 @@ namespace backend.Data.Repository
             return mapper.Map<IEnumerable<ProductDto>>(returnProducts);
         }
 
+        public async Task<IEnumerable<ProductDto>> SearchProducts(string query, int page, int pageSize)
+        {
+            var products = await context.ProductTable
+                .Where(p => p.ProductName.Contains(query) || p.Description.Contains(query))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return mapper.Map<IEnumerable<ProductDto>>(products);
+        }
         public async Task<IEnumerable<ProductDto>> GetProductsBySize(string size)
         {
             var products = await context.ProductTable.ToListAsync();

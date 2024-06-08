@@ -17,6 +17,8 @@ namespace backend.Data.Repository
         Task<IEnumerable<ProductDto>> GetProductsBySize(string size);
 
         Task<IEnumerable<ProductDto>> GetAllProducts(int page, int pageSize, string sortBy, string sortOrder);
+       Task<IEnumerable<ProductDto>> SearchProducts(string query, int page, int pageSize);
+
 
 
     }

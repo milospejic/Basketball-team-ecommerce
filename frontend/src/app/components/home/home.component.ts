@@ -9,10 +9,10 @@ import { Router } from '@angular/router';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+  productList: Product[] = [];
+  searchQuery: string = '';
 
   constructor(private productService: ProductService, private router: Router) {}
-
-  productList: Product[] = [];
 
   ngOnInit(): void {
     this.loadAllProducts();
@@ -38,6 +38,21 @@ export class HomeComponent implements OnInit {
         console.error('Error loading products:', error);
       }
     );
+  }
+
+  searchProducts(): void {
+    if (this.searchQuery.trim() !== '') {
+      this.productService.searchProducts(this.searchQuery).subscribe(
+        (result: Product[]) => {
+          this.productList = result;
+        },
+        (error) => {
+          console.error('Error searching products:', error);
+        }
+      );
+    } else {
+      this.loadAllProducts();
+    }
   }
 
   addProductToCart(id: string): void {
