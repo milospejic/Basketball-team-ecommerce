@@ -9,7 +9,7 @@
       <p><strong>Brand:</strong> {{ product.brand }}</p>
       <p><strong>Category:</strong> {{ product.category }}</p>
       <p><strong>Size:</strong> {{ product.size }}</p>
-      <p><strong>Price:</strong> {{ product.price }} RSD</p>
+      <p><strong>Price:</strong> {{ product.price }} $</p>
       <div *ngIf="product.totalRating">
         <span *ngFor="let star of [1, 2, 3, 4, 5]" class="me-0">
           <i class="fa fa-star" [ngClass]="{'fa-star-half': star-0.5 === product.totalRating, 'fa-star': star <= product.totalRating, 'fa-star-o': star > product.totalRating}"></i>

@@ -16,7 +16,7 @@
                 <div class="card-body">
                   <h5 class="card-title">{{product.productName}}</h5>
                   <p class="card-text">
-                    <span class="text-danger fw-semibold me-2">{{product.price}} RSD</span>
+                    <span class="text-danger fw-semibold me-2">{{product.price}} $</span>
                   </p>
                   <span *ngFor="let star of [1, 2, 3, 4, 5]" class="me-0">
                     <i class="fa fa-star" [ngClass]="{'fa-star-half': star-0.5 === product.totalRating, 'fa-star': star <= product.totalRating, 'fa-star-o': star > product.totalRating}"></i>

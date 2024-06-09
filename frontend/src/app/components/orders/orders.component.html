@@ -17,8 +17,8 @@
         <td>{{ order.orderId }}</td>
         <td>{{ order.numberOfItems }}</td>
         <td>{{ order.orderStatus }}</td>
-        <td>{{ order.orderDate }}</td>
-        <td>{{ order.totalPrice }}</td>
+        <td>{{ order.orderDate | date:'short' }}</td>
+        <td>{{ order.totalPrice }} $</td>
         <td>{{ order.isPaid }}</td>
         
         <td>
