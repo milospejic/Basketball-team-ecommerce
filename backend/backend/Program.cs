@@ -49,7 +49,8 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigin",
-        builder => builder.WithOrigins("https://localhost:4200")
+        builder => builder.AllowAnyOrigin()
+        //WithOrigins("https://localhost:4200")
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });

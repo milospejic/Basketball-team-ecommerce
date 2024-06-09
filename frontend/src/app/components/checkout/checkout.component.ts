@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { PaymentService } from '../../services/payment.service';
 import { ActivatedRoute } from '@angular/router';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
 import { environment } from '../../environments/environment';
 
 @Component({
@@ -10,58 +10,74 @@ import { environment } from '../../environments/environment';
   styleUrls: ['./checkout.component.css']
 })
 export class CheckoutComponent implements AfterViewInit {
-  stripe: any;
+  stripe!: Stripe;
+  elements!: StripeElements;
+  cardElement!: StripeCardElement;
   clientSecret!: string;
   orderId!: string | null;
   fullPrice!: string | null;
-  @ViewChild('cardElement') cardElement!: ElementRef;
+
+  @ViewChild('cardElement') cardElementRef!: ElementRef;
 
   constructor(private paymentService: PaymentService, private route: ActivatedRoute) {}
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
     this.orderId = this.route.snapshot.paramMap.get('orderId');
     this.fullPrice = this.route.snapshot.paramMap.get('fullPrice');
-    this.initializeStripe();
-    this.createPaymentIntent();
+    await this.initializeStripe();
+    await this.createPaymentIntent();
   }
 
-  async initializeStripe() {
-    this.stripe = await loadStripe(environment.stripe.publishableKey);
-    const elements = this.stripe.elements();
-    const cardElement = elements.create('card');
-    cardElement.mount(this.cardElement.nativeElement);
-    console.log('done');
+  async initializeStripe(): Promise<void> {
+    const stripe = await loadStripe(environment.stripe.publishableKey);
+    if (stripe) {
+      this.stripe = stripe;
+      this.elements = this.stripe.elements();
+      this.cardElement = this.elements.create('card');
+      this.cardElement.mount(this.cardElementRef.nativeElement);
+    } else {
+      console.error('Stripe failed to load');
+    }
   }
 
-  async createPaymentIntent() {
+  async createPaymentIntent(): Promise<void> {
     if (this.fullPrice == null || this.orderId == null) {
       console.log('Payment failed');
-      return;
-    }
+    } else {
+      const amount = parseFloat(this.fullPrice) * 100;
+      const currency = 'usd';
 
-    const amount = parseFloat(this.fullPrice);
-    const currency = 'usd';
-    this.paymentService.createPaymentIntent(amount, currency, this.orderId).subscribe(async (response) => {
-      this.clientSecret = response.clientSecret;
-      const form = document.getElementById('payment-form');
-      if (form != null) {
-        form.addEventListener('submit', async (event) => {
-          event.preventDefault();
-          const { error } = await this.stripe.confirmCardPayment(this.clientSecret, {
-            payment_method: {
-              card: this.cardElement.nativeElement,
-              billing_details: {
-                name: 'Customer Name'
-              }
-            }
-          });
-          if (error) {
-            console.error('Payment failed', error);
-          } else {
-            console.log('Payment succeeded');
-          }
-        });
+      this.paymentService.createPaymentIntent(amount, currency, this.orderId).subscribe(response => {
+        this.clientSecret = response.clientSecret;
+        this.setupPaymentForm();
+      });
+    }
+  }
+
+  setupPaymentForm(): void {
+    const form = document.getElementById('payment-form');
+    if (form) {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await this.handlePayment();
+      });
+    }
+  }
+
+  async handlePayment(): Promise<void> {
+    const { error, paymentIntent } = await this.stripe.confirmCardPayment(this.clientSecret, {
+      payment_method: {
+        card: this.cardElement,
+        billing_details: {
+          name: 'Customer Name'
+        }
       }
     });
+
+    if (error) {
+      console.error('Payment failed', error);
+    } else if (paymentIntent?.status === 'succeeded') {
+      console.log('Payment succeeded', paymentIntent);
+    }
   }
 }
