@@ -43,4 +43,12 @@ export class AppComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/']);
   }
+
+  goToLogin(): void {
+    this.router.navigate(['/login']);
+  }
+
+  userRole(): string | null {
+    return localStorage.getItem('userRole');
+  }
 }

@@ -72,6 +72,11 @@
                         </a>
                     </li>
                     <li class="nav-item" *ngIf="!isLoggedIn">
+                        <a class="nav-link fw-semibold text-uppercase text-black me-1" (click)="goToLogin()">
+                            Login
+                        </a>
+                    </li>
+                    <li class="nav-item" *ngIf="!isLoggedIn">
                         <a class="nav-link position-relative" routerLink="/login" routerLinkActive="active">
                             <i class="fa fa-cart-plus fs-5" style="color: #202122;"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
@@ -79,7 +84,7 @@
                             </span>
                         </a>
                     </li>
-                    <li class="nav-item" *ngIf="isLoggedIn">
+                    <li class="nav-item" *ngIf="isLoggedIn && userRole() != 'Admin'">
                         <a class="nav-link position-relative" routerLink="/cart" routerLinkActive="active">
                             <i class="fa fa-cart-plus fs-5" style="color: #202122;"></i>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">

@@ -68,4 +68,8 @@ export class HomeComponent implements OnInit {
   viewProductDetails(id: string): void {
     this.router.navigate(['/product', id]);
   }
+
+  userRole(): string | null {
+    return localStorage.getItem('userRole');
+  }
 }
