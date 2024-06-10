@@ -1,8 +1,10 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { PaymentService } from '../../services/payment.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { loadStripe, Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
 import { environment } from '../../environments/environment';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-checkout',
@@ -19,7 +21,7 @@ export class CheckoutComponent implements AfterViewInit {
 
   @ViewChild('cardElement') cardElementRef!: ElementRef;
 
-  constructor(private paymentService: PaymentService, private route: ActivatedRoute) {}
+  constructor(private paymentService: PaymentService, private route: ActivatedRoute, private router: Router, private snackBar: MatSnackBar) {}
 
   async ngAfterViewInit(): Promise<void> {
     this.orderId = this.route.snapshot.paramMap.get('orderId');
@@ -76,8 +78,14 @@ export class CheckoutComponent implements AfterViewInit {
 
     if (error) {
       console.error('Payment failed', error);
+      this.snackBar.open('Payment failed', 'Close');
     } else if (paymentIntent?.status === 'succeeded') {
       console.log('Payment succeeded', paymentIntent);
+      const snackBarRef = this.snackBar.open('Payment succeeded', 'Close');
+      snackBarRef.afterDismissed().subscribe(() => {
+        this.router.navigate(['/home']);
+      });
     }
+    
   }
 }

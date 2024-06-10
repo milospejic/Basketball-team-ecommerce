@@ -9,12 +9,16 @@ import { ProductUpdate } from '../models/productUpdate';
   providedIn: 'root'
 })
 export class ProductService {
-
+  
   cart: CartProduct[] = [];
   constructor(private http: HttpClient) { }
     
-  getAllProducts(): Observable<any[]>{
+  getAllProductsFull() : Observable<any[]>{
     return this.http.get<any[]>("https://localhost:7261/api/product");
+  }
+  getAllProducts(page: number, pageSize: number, sortBy: string, sortOrder: string): Observable<Product[]> {
+    const url = `https://localhost:7261/api/product?page=${page}&pageSize=${pageSize}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+    return this.http.get<Product[]>(url);
   }
 
   getAllProductsByCategory(id: string): Observable<any[]>{

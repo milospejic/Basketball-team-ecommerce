@@ -11,7 +11,13 @@ import { Router } from '@angular/router';
 export class HomeComponent implements OnInit {
   productList: Product[] = [];
   searchQuery: string = '';
+  currentPage: number = 1;
+  pageSize: number = 10;
+  sortBy: string = 'price';
+  sortOrder: string = 'asc';
+  showSortingAndPagination: boolean = true;
 
+  
   constructor(private productService: ProductService, private router: Router) {}
 
   ngOnInit(): void {
@@ -19,9 +25,16 @@ export class HomeComponent implements OnInit {
   }
 
   loadAllProducts(): void {
-    this.productService.getAllProducts().subscribe(
+    this.showSortingAndPagination = true;
+
+    this.productService.getAllProducts(this.currentPage, this.pageSize, this.sortBy, this.sortOrder).subscribe(
       (result: Product[]) => {
         this.productList = result;
+        console.log(result);
+        if(this.productList == null){
+          this.currentPage--;
+          this.loadAllProducts();
+        }
       },
       (error) => {
         console.error('Error loading products:', error);
@@ -30,7 +43,9 @@ export class HomeComponent implements OnInit {
   }
 
   loadProductsByCategory(category: string): void {
-    this.productService.getAllProducts().subscribe(
+    this.showSortingAndPagination = false;
+
+    this.productService.getAllProductsFull().subscribe(
       (result: Product[]) => {
         this.productList = result.filter((product) => product.category === category);
       },
@@ -45,6 +60,7 @@ export class HomeComponent implements OnInit {
       this.productService.searchProducts(this.searchQuery).subscribe(
         (result: Product[]) => {
           this.productList = result;
+
         },
         (error) => {
           console.error('Error searching products:', error);
@@ -71,5 +87,19 @@ export class HomeComponent implements OnInit {
 
   userRole(): string | null {
     return localStorage.getItem('userRole');
+  }
+
+  onNextPage() {
+    //if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadAllProducts();
+    //}
+  }
+
+  onPreviousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadAllProducts();
+    }
   }
 }

@@ -1,52 +1,71 @@
 <section id="product">
-  <div class="container">
+    <div class="container">
       <div class="row">
-          <div class="col-12">
-              <div class="productHeading text-center">
-                  <h2 class="mb-3">Get our exclusive products</h2>
-                  <input type="text" [(ngModel)]="searchQuery" (input)="searchProducts()" placeholder="Search products" class="form-control mb-3"/>
-                  <ul class="list-unstyled d-flex justify-content-center">
-                      <li><button class="btn m-4 fw-semibold text-black" (click)="loadAllProducts()">All</button></li>
-                      <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Jersey')">Jerseys</button></li>
-                      <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Shorts')">Shorts</button></li>
-                      <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('T-Shirt')">T-Shirts</button></li>
-                      <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('SeasonTicket')">Season Tickets</button></li>
-                      <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Cap')">Caps</button></li>
-                      <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Hoody')">Hoodies</button></li>
-                  </ul>
-              </div>
+        <div class="col-12">
+          <div class="productHeading text-center">
+            <h2 class="mb-3">Get our exclusive products</h2>
+            <input type="text" [(ngModel)]="searchQuery" (input)="searchProducts()" placeholder="Search products" class="form-control mb-3"/>
+            <div class="d-flex justify-content-center" *ngIf="showSortingAndPagination">
+              <label for="sortOrder">Sort Order:</label>
+              <select id="sortOrder" [(ngModel)]="sortOrder" (change)="loadAllProducts()">
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+              <label for="pageSize">Products Per Page:</label>
+              <select id="pageSize" [(ngModel)]="pageSize" (change)="loadAllProducts()">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+              </select>
+            </div>
+            <ul class="list-unstyled d-flex justify-content-center">
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadAllProducts()">All</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Jersey')">Jerseys</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Shorts')">Shorts</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('T-Shirt')">T-Shirts</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('SeasonTicket')">Season Tickets</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Cap')">Caps</button></li>
+              <li><button class="btn m-4 fw-semibold text-black" (click)="loadProductsByCategory('Hoody')">Hoodies</button></li>
+            </ul>
           </div>
-          <div class="col-12">
-              <div class="row mt-3 g-3">
-                  <div class="col-lg-3" *ngFor="let product of productList">
-                      <div class="box-shadow product-card">
-                          <div class="card">
-                              <img class="img-fluid card-img-top" style="height: 250px;" [src]="product.image" class="card-img-top" alt="..." (click)="viewProductDetails(product.productId)">
-                              <div class="card-body">
-                                  <h5 class="card-title" (click)="viewProductDetails(product.productId)">{{product.productName}}</h5>
-                                  <p class="card-text">
-                                      <span class="text-danger fw-semibold me-2">{{product.price}} $</span>
-                                  </p>
-                                  <span *ngFor="let star of [1, 2, 3, 4, 5]" class="me-0">
-                                      <i class="fa fa-star" [ngClass]="{'fa-star-half': star-0.5 === product.totalRating, 'fa-star': star <= product.totalRating, 'fa-star-o': star > product.totalRating}"></i>
-                                  </span>
-                                  <div class="row">
-                                      <div class="col-5"></div>
-                                      <div class="row mt-3" *ngIf="userRole() != 'Admin'">
-                                          <div class="col-6 text-end">
-                                              <button class="btn btn-sm btn-success fw-bold" (click)="addProductToCart(product.productId)">+</button>
-                                          </div>
-                                          <div class="col-6">
-                                              <button class="btn btn-sm btn-danger fw-bold" (click)="removeProductFromCart(product.productId)">-</button>
-                                          </div>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
+        </div>
+        <div class="col-12">
+          <div class="row mt-3 g-3">
+            <div class="col-lg-3" *ngFor="let product of productList">
+              <div class="box-shadow product-card">
+                <div class="card">
+                  <img class="img-fluid card-img-top" style="height: 250px;" [src]="product.image" class="card-img-top" alt="..." (click)="viewProductDetails(product.productId)">
+                  <div class="card-body">
+                    <h5 class="card-title" (click)="viewProductDetails(product.productId)">{{product.productName}}</h5>
+                    <p class="card-text">
+                      <span class="text-danger fw-semibold me-2">{{product.price}} $</span>
+                    </p>
+                    <span *ngFor="let star of [1, 2, 3, 4, 5]" class="me-0">
+                      <i class="fa fa-star" [ngClass]="{'fa-star-half': star-0.5 === product.totalRating, 'fa-star': star <= product.totalRating, 'fa-star-o': star > product.totalRating}"></i>
+                    </span>
+                    <div class="row">
+                      <div class="col-5"></div>
+                      <div class="row mt-3" *ngIf="userRole() != 'Admin'">
+                        <div class="col-6 text-end">
+                          <button class="btn btn-sm btn-success fw-bold" (click)="addProductToCart(product.productId)">+</button>
+                        </div>
+                        <div class="col-6">
+                          <button class="btn btn-sm btn-danger fw-bold" (click)="removeProductFromCart(product.productId)">-</button>
+                        </div>
                       </div>
+                    </div>
                   </div>
+                </div>
               </div>
+            </div>
           </div>
+          <div class="d-flex justify-content-center mt-3">
+            <button class="btn btn-primary me-2" (click)="onPreviousPage()">Previous</button>
+            <button class="btn btn-success" (click)="onNextPage()">Next</button>
+        </div>
       </div>
+    </div>
   </div>
 </section>
+
+  
