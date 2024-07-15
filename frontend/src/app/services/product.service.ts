@@ -90,4 +90,9 @@ export class ProductService {
   searchProducts(query: string): Observable<Product[]> {
     return this.http.get<Product[]>(`https://localhost:7261/api/product/search?query=${query}`);
   }
+
+  getCartItemAmount(productId: string): number {
+    const cartItem = this.cart.find(item => item.productId === productId);
+    return cartItem ? cartItem.amount : 0;
+  }
 }

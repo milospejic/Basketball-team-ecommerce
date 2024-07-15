@@ -6,6 +6,8 @@ import { Product } from '../../models/product';
 import { Review } from '../../models/review';
 import { AuthService } from '../../services/auth.service';
 import { CurrentUser } from '../../models/currentUser';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-product-details',
@@ -16,13 +18,15 @@ export class ProductDetailsComponent implements OnInit {
   product!: Product;
   reviews: Review[] = [];
   currentUser!: CurrentUser;
+  amount!:number;
 
 
   constructor(
     private productService: ProductService,
     private reviewService: ReviewService,
     private authService: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -57,8 +61,15 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   addProductToCart(id: string): void {
-    this.productService.addToCart(id);
-    console.log('Product added to cart:', id);
+    this.amount = this.productService.getCartItemAmount(id);
+    if (this.amount >= this.product.quantity) {
+      this.snackBar.open('Amount exceeds product quantity', 'Close', {
+        duration: 3000, // Duration in milliseconds
+      });
+    } else {
+      this.productService.addToCart(id);
+      console.log('Product added to cart:', id);
+    }
   }
 
   removeProductFromCart(id: string): void {

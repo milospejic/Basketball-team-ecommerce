@@ -5,6 +5,8 @@ import { Product } from '../../models/product';
 import { forkJoin } from 'rxjs';
 import { OrderService } from '../../services/order.service';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 @Component({
   selector: 'app-cart',
@@ -16,8 +18,9 @@ export class CartComponent implements OnInit {
   cart: CartProduct[] = [];
   products: Product[] = [];
   totalItems: number = 0;
+  quantity!: number;
 
-  constructor(private productService: ProductService, private orderService: OrderService, private router: Router) { }
+  constructor(private productService: ProductService, private orderService: OrderService, private router: Router,private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.cart = this.productService.cart;
@@ -33,9 +36,18 @@ export class CartComponent implements OnInit {
   }
 
   addToCart(id: string): void {
-    this.productService.addToCart(id);
-    this.loadProducts();
-    this.calculateTotalItems();
+    this.productService.getProductById(id).subscribe( product =>
+    {
+      if (this.productService.getCartItemAmount(id) >= product.quantity) {
+        this.snackBar.open('Amount exceeds product quantity', 'Close', {
+          duration: 3000, // Duration in milliseconds
+        });
+      } else {
+      this.productService.addToCart(id);
+      this.loadProducts();
+      this.calculateTotalItems();
+      }
+    });
   }
   removeFromCart(id: string): void {
     this.productService.removeFromCart(id);
