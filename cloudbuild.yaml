@@ -2,7 +2,7 @@ steps:
   - name: 'mcr.microsoft.com/dotnet/sdk:8.0'
     id: 'Build'
     entrypoint: 'dotnet'
-    args: ['publish', 'backend/backend.csproj', '-c', 'Release', '-o', 'publish']
+    args: ['publish', 'backend/backend/backend.csproj', '-c', 'Release', '-o', 'publish']
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Copy Files'
