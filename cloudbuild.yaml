@@ -11,8 +11,8 @@ steps:
       - 'scp'
       - '--recurse'
       - 'publish/'
-      - '${_VM_INSTANCE_NAME}:/tmp/'
-      - '--zone=${_VM_ZONE}'
+      - '$$VM_INSTANCE_NAME_SECRET:/tmp/'
+      - '--zone=$$VM_ZONE_SECRET'
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Configure and Restart'
@@ -20,7 +20,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute ssh ${_VM_INSTANCE_NAME} --zone=${_VM_ZONE} --command='
+        gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
           sudo systemctl stop kestrel-backend.service
           sudo mkdir -p /var/www/backend
           sudo cp -r /tmp/publish/* /var/www/backend/
@@ -48,10 +48,12 @@ availableSecrets:
     - versionName: latest
       env: 'DB_CONN_STRING_SECRET'
       secretId: 'DB_CONNECTION_STRING'
-
-substitutions:
-  _VM_INSTANCE_NAME: 'ecomm-app-backend-vm'
-  _VM_ZONE: 'europe-west1-b'
+    - versionName: latest
+      env: 'VM_INSTANCE_NAME_SECRET'
+      secretId: 'VM_INSTANCE_NAME'
+    - versionName: latest
+      env: 'VM_ZONE_SECRET'
+      secretId: 'VM_ZONE'
 
 options:
   logging: CLOUD_LOGGING_ONLY
