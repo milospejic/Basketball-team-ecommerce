@@ -19,7 +19,7 @@ steps:
       - '-c'
       - |
         gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
-          sudo systemctl stop kestrel-backend.service
+          sudo systemctl stop kestrel-backend.service || true
           sudo mkdir -p /var/www/backend
           sudo cp -r /tmp/publish/* /var/www/backend/
           sudo chown -R www-data:www-data /var/www/backend
@@ -27,12 +27,12 @@ steps:
           Description=Backend .NET Web API
           [Service]
           WorkingDirectory=/var/www/backend
-          ExecStart=/usr/bin/dotnet /var/www/backend/backend.dll
+          ExecStart=/usr/share/dotnet/dotnet /var/www/backend/backend.dll
           Restart=always
           RestartSec=10
           User=www-data
           Environment=ASPNETCORE_ENVIRONMENT=Production
-          Environment=\\\"ConnectionStrings__BasketballDBConnection=$$DB_CONN_STRING_SECRET\\\" # Changed from $ to $$ and escaped quotes
+          Environment=\"ConnectionStrings__BasketballDBConnection=$$DB_CONN_STRING_SECRET\"
           [Install]
           WantedBy=multi-user.target" | sudo tee /etc/systemd/system/kestrel-backend.service
           sudo systemctl daemon-reload
