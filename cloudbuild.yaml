@@ -11,8 +11,8 @@ steps:
       - 'scp'
       - '--recurse'
       - 'publish/'
-      - '$VM_INSTANCE_NAME_SECRET:/tmp/'
-      - '--zone=$VM_ZONE_SECRET'
+      - '$$VM_INSTANCE_NAME_SECRET:/tmp/' 
+      - '--zone=$$VM_ZONE_SECRET' 
     secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
 
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -21,7 +21,7 @@ steps:
     args:
       - '-c'
       - |
-        gcloud compute ssh $VM_INSTANCE_NAME_SECRET --zone=$VM_ZONE_SECRET --command='
+        gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
           sudo systemctl stop kestrel-backend.service
           sudo mkdir -p /var/www/backend
           sudo cp -r /tmp/publish/* /var/www/backend/
@@ -32,10 +32,10 @@ steps:
           WorkingDirectory=/var/www/backend
           ExecStart=/usr/bin/dotnet /var/www/backend/backend.dll
           Restart=always
-          RestrestSec=10
+          RestartSec=10
           User=www-data
           Environment=ASPNETCORE_ENVIRONMENT=Production
-          Environment=\"ConnectionStrings__BasketballDBConnection=$DB_CONN_STRING_SECRET\"
+          Environment=\\\"ConnectionStrings__BasketballDBConnection=$$DB_CONN_STRING_SECRET\\\" # Changed from $ to $$ and escaped quotes
           [Install]
           WantedBy=multi-user.target" | sudo tee /etc/systemd/system/kestrel-backend.service
           sudo systemctl daemon-reload
@@ -43,7 +43,7 @@ steps:
           sudo systemctl start kestrel-backend.service
           sudo systemctl restart nginx
         '
-    secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
+    secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET', 'DB_CONN_STRING_SECRET']
 
 availableSecrets:
   secretManager:
