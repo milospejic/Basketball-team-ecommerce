@@ -1,0 +1,65 @@
+
+steps:
+  - name: 'mcr.microsoft.com/dotnet/sdk:8.0'
+    id: 'Build'
+    entrypoint: 'dotnet'
+    args: ['publish', 'backend/backend.csproj', '-c', 'Release', '-o', 'publish']
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Copy Files'
+    args:
+      - 'compute'
+      - 'scp'
+      - '--recurse'
+      - 'publish/'
+      - '${_VM_INSTANCE_NAME}:/tmp/ --zone=${_VM_ZONE}'
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Configure and Restart Service'
+
+    availableSecrets:
+      - versionName: projects/${PROJECT_ID}/secrets/DB_CONNECTION_STRING/versions/latest
+        env: 'DB_CONN_STRING_SECRET'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # This gcloud command connects to the VM and runs the multi-line script
+        gcloud compute ssh ${_VM_INSTANCE_NAME} --zone=${_VM_ZONE} --command='
+          # Stop the service to unlock files
+          sudo systemctl stop kestrel-backend.service
+
+          # Set up the application directory and copy files from /tmp
+          sudo mkdir -p /var/www/backend
+          sudo cp -r /tmp/publish/* /var/www/backend/
+
+          # Set ownership to the web server user
+          sudo chown -R www-data:www-data /var/www/backend
+
+          # Create the systemd service file to manage the .NET process
+          # It includes the connection string from the secret
+          echo "[Unit]
+          Description=Backend .NET Web API
+          [Service]
+          WorkingDirectory=/var/www/backend
+          ExecStart=/usr/bin/dotnet /var/www/backend/backend.dll
+          Restart=always
+          RestartSec=10
+          User=www-data
+          Environment=ASPNETCORE_ENVIRONMENT=Production
+          Environment=\"ConnectionStrings__BasketballDBConnection=$$DB_CONN_STRING_SECRET\"
+          [Install]
+          WantedBy=multi-user.target" | sudo tee /etc/systemd/system/kestrel-backend.service
+
+          # Reload systemd, enable the new service, start it, and restart Nginx
+          sudo systemctl daemon-reload
+          sudo systemctl enable kestrel-backend.service
+          sudo systemctl start kestrel-backend.service
+          sudo systemctl restart nginx
+        '
+substitutions:
+  _VM_INSTANCE_NAME: 'ecomm-app-backend-vm' 
+  _VM_ZONE: 'europe-west1-b' 
+
+options:
+  logging: CLOUD_LOGGING_ONLY
