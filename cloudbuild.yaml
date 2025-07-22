@@ -6,13 +6,10 @@ steps:
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Copy Files'
+    entrypoint: 'bash'
     args:
-      - 'compute'
-      - 'scp'
-      - '--recurse'
-      - 'publish/'
-      - '$$VM_INSTANCE_NAME_SECRET:/tmp/' 
-      - '--zone=$$VM_ZONE_SECRET' 
+      - '-c'
+      - 'gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET'
     secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
 
   - name: 'gcr.io/cloud-builders/gcloud'
