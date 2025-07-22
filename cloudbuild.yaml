@@ -7,11 +7,13 @@ steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Copy Files'
     args:
-      - 'compute'
-      - 'scp'
-      - '--recurse'
-      - 'publish/'
-      - '${_VM_INSTANCE_NAME}:/tmp/ --zone=${_VM_ZONE}'
+  - 'compute'
+  - 'scp'
+  - '--recurse'
+  - 'publish/'
+  - '${_VM_INSTANCE_NAME}:/tmp/'
+  - '--zone=${_VM_ZONE}'
+
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Configure and Restart'
