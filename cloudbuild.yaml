@@ -45,7 +45,11 @@ steps:
 availableSecrets:
   secretManager:
     env:
-      DB_CONN_STRING_SECRET: projects/${PROJECT_ID}/secrets/DB_CONNECTION_STRING/versions/latest
+      - key: DB_CONN_STRING_SECRET
+        projectId: ${PROJECT_ID}
+        secret: DB_CONNECTION_STRING
+        versionName: latest
+
 
 substitutions:
   _VM_INSTANCE_NAME: 'ecomm-app-backend-vm'
