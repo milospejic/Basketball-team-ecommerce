@@ -7,13 +7,12 @@ steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Copy Files'
     args:
-  - 'compute'
-  - 'scp'
-  - '--recurse'
-  - 'publish/'
-  - '${_VM_INSTANCE_NAME}:/tmp/'
-  - '--zone=${_VM_ZONE}'
-
+      - 'compute'
+      - 'scp'
+      - '--recurse'
+      - 'publish/'
+      - '${_VM_INSTANCE_NAME}:/tmp/'
+      - '--zone=${_VM_ZONE}'
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Configure and Restart'
@@ -46,12 +45,9 @@ steps:
 
 availableSecrets:
   secretManager:
-    env:
-      - key: DB_CONN_STRING_SECRET
-        projectId: ${PROJECT_ID}
-        secret: DB_CONNECTION_STRING
-        versionName: latest
-
+    - versionName: latest
+      env: 'DB_CONN_STRING_SECRET'
+      secretId: 'DB_CONNECTION_STRING'
 
 substitutions:
   _VM_INSTANCE_NAME: 'ecomm-app-backend-vm'
