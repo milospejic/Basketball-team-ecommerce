@@ -47,13 +47,13 @@ availableSecrets:
   secretManager:
     - versionName: latest
       env: 'DB_CONN_STRING_SECRET'
-      secretId: 'DB_CONNECTION_STRING'
+      secret: 'DB_CONNECTION_STRING'
     - versionName: latest
       env: 'VM_INSTANCE_NAME_SECRET'
-      secretId: 'VM_INSTANCE_NAME'
+      secret: 'VM_INSTANCE_NAME'
     - versionName: latest
       env: 'VM_ZONE_SECRET'
-      secretId: 'VM_ZONE'
+      secret: 'VM_ZONE'
 
 options:
   logging: CLOUD_LOGGING_ONLY
