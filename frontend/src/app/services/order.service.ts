@@ -4,6 +4,7 @@ import { CartProduct } from '../models/cartProduct';
 import { Observable } from 'rxjs';
 import { ProductsInOrder } from '../models/productsInOrder';
 import { Order } from '../models/order';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.get<any[]>("https://localhost:7261/api/order", {headers})
+    return this.http.get<any[]>(`${environment.apiUrl}/api/order`, {headers})
   }
   
   createOrder(cart: CartProduct[]): Observable<any> {
@@ -28,7 +29,7 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.post<any>('https://localhost:7261/api/order', this.productsInOrder, { headers });
+    return this.http.post<any>(`${environment.apiUrl}/api/order`, this.productsInOrder, { headers });
   }
 
   deleteOrder(orderId: string): Observable<any> {
@@ -36,7 +37,7 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.delete(`https://localhost:7261/api/order/${orderId}`, { headers });
+    return this.http.delete(`${environment.apiUrl}/api/order/${orderId}`, { headers });
   }
 
   setStatusSent(id: string):Observable<Order>{
@@ -44,7 +45,7 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.patch<Order>(`https://localhost:7261/api/order/sent/${id}`,{}, { headers });
+    return this.http.patch<Order>(`${environment.apiUrl}/api/order/sent/${id}`,{}, { headers });
 
   }
 
@@ -53,6 +54,6 @@ export class OrderService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.get<Order[]>(`https://localhost:7261/api/order/user/${userId}`, { headers });
+    return this.http.get<Order[]>(`${environment.apiUrl}/api/order/user/${userId}`, { headers });
   }
 }

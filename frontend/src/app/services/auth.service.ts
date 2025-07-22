@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CurrentUser } from '../models/currentUser';
 import { isLocalStorageAvailable } from '../utils/localStorageUtil';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -51,11 +52,11 @@ export class AuthService {
   }
 
   register(user: any): Observable<any> {
-    return this.http.post<any>('https://localhost:7261/api/user', user);
+    return this.http.post<any>(`${environment.apiUrl}/api/user`, user);
   }
 
   login(email: string, password: string): Observable<boolean> {
-    return this.http.post<any>('https://localhost:7261/api/Auth/authenticate', { email, password }).pipe(
+    return this.http.post<any>(`${environment.apiUrl}/api/Auth/authenticate`, { email, password }).pipe(
       map(response => {
         if (response && response.token) {
           if (isLocalStorageAvailable()) {
@@ -90,7 +91,7 @@ export class AuthService {
       'Authorization': `Bearer ${token}`
     });
 
-    return this.http.get<CurrentUser>('https://localhost:7261/api/user/current-user', { headers }).pipe(
+    return this.http.get<CurrentUser>(`${environment.apiUrl}/api/user/current-user`, { headers }).pipe(
       map(response => {
         if (response && response.role) {
           this.setUserRole(response.role);
