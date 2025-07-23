@@ -69,7 +69,7 @@ steps:
     secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
 
  # Frontend Job (runs in parallel with backend)
-  - name: 'node:18'
+  - name: 'node:22'
     id: 'Build Frontend'
     entrypoint: 'bash'
     args:
