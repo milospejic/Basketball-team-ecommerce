@@ -79,8 +79,6 @@ steps:
         npm install --legacy-peer-deps
         npm install -g @angular/cli
         ng build --configuration=production
-
-    secretEnv: ['API_URL_SECRET']
     waitFor: ['-']  # Start immediately, don't wait for previous steps
 
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -90,7 +88,7 @@ steps:
       - '-c'
       - |
         # Upload frontend files to GCS bucket
-        gsutil -m rsync -r -d frontend/dist/browser gs://$$FRONTEND_BUCKET_NAME_SECRET/
+        gsutil -m rsync -r -d frontend/dist/browser/ gs://$$FRONTEND_BUCKET_NAME_SECRET/
         
         # Set proper cache headers for static assets
         gsutil -m setmeta -h "Cache-Control:public,max-age=31536000" gs://$$FRONTEND_BUCKET_NAME_SECRET/**/*.js
@@ -112,7 +110,5 @@ availableSecrets:
       env: 'VM_ZONE_SECRET'
     - versionName: projects/$PROJECT_ID/secrets/FRONTEND_BUCKET_NAME/versions/latest
       env: 'FRONTEND_BUCKET_NAME_SECRET'
-    - versionName: projects/$PROJECT_ID/secrets/API_URL/versions/latest
-      env: 'API_URL_SECRET'
 options:
   logging: CLOUD_LOGGING_ONLY
