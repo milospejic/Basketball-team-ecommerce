@@ -50,7 +50,7 @@ steps:
         RestartSec=10
         User=www-data
         Environment=ASPNETCORE_ENVIRONMENT=Production
-        Environment="ConnectionStrings__BasketballDBConnection=${CONN_STRING}"
+        Environment="ConnectionStrings__BasketballDBConnection=\${CONN_STRING}"
         [Install]
         WantedBy=multi-user.target
         EOF
