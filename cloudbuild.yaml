@@ -92,7 +92,7 @@ steps:
       - '-c'
       - |
         # Upload frontend files to GCS bucket
-        gsutil -m rsync -r -d frontend/dist/browser/ gs://$$FRONTEND_BUCKET_NAME_SECRET/
+        gsutil -m rsync -r -d frontend/dist/browser gs://$$FRONTEND_BUCKET_NAME_SECRET/
         
         # Set proper cache headers for static assets
         gsutil -m setmeta -h "Cache-Control:public,max-age=31536000" gs://$$FRONTEND_BUCKET_NAME_SECRET/**/*.js
