@@ -4,6 +4,12 @@ steps:
     entrypoint: 'dotnet'
     args: ['publish', 'backend/backend/backend.csproj', '-c', 'Release', '-o', 'publish']
 
+  - name: 'bash'
+    id: 'Prepare Secret File'
+    entrypoint: 'bash'
+    args: ['-c', 'echo -n "$$DB_CONN_STRING_SECRET" > publish/connection_string.txt']
+    secretEnv: ['DB_CONN_STRING_SECRET']
+
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Copy Files'
     entrypoint: 'bash'
@@ -19,36 +25,56 @@ steps:
       - '-c'
       - |
         gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
+          # Stop the service before making changes. "|| true" ignores errors if the service is not already running.
           sudo systemctl stop kestrel-backend.service || true
+
+          # Set up the application directory
           sudo mkdir -p /var/www/backend
+          # It is best practice to clean out old files before copying new ones.
+          sudo rm -rf /var/www/backend/*
           sudo cp -r /tmp/publish/* /var/www/backend/
           sudo chown -R www-data:www-data /var/www/backend
-          echo $$DB_CONN_STRING_SECRET
-          echo "[Unit]
-          Description=Backend .NET Web API
-          [Service]
-          WorkingDirectory=/var/www/backend
-          ExecStart=/usr/share/dotnet/dotnet /var/www/backend/backend.dll
-          Restart=always
-          RestartSec=10
-          User=www-data
-          Environment=ASPNETCORE_ENVIRONMENT=Production
-          Environment=\"ConnectionStrings__BasketballDBConnection=$$DB_CONN_STRING_SECRET\"
-          [Install]
-          WantedBy=multi-user.target" | sudo tee /etc/systemd/system/kestrel-backend.service
+
+          # Securely read the connection string from the file into a shell variable.
+          CONN_STRING=$(sudo cat /var/www/backend/connection_string.txt)
+
+          # Use a "here document" (cat <<EOF) to safely create the systemd service file.
+          # This is the most reliable way to write multi-line text to a file in a script.
+          sudo tee /etc/systemd/system/kestrel-backend.service > /dev/null <<EOF
+        [Unit]
+        Description=Backend .NET Web API
+        [Service]
+        WorkingDirectory=/var/www/backend
+        ExecStart=/usr/share/dotnet/dotnet /var/www/backend/backend.dll
+        Restart=always
+        RestartSec=10
+        User=www-data
+        Environment=ASPNETCORE_ENVIRONMENT=Production
+        Environment="ConnectionStrings__BasketballDBConnection=${CONN_STRING}"
+        [Install]
+        WantedBy=multi-user.target
+        EOF
+
+          # For security, clean up the connection string file now that it has been loaded into the service definition.
+          sudo rm /var/www/backend/connection_string.txt
+
+          # Reload systemd to recognize the new/changed service file, then enable and start the service.
           sudo systemctl daemon-reload
           sudo systemctl enable kestrel-backend.service
           sudo systemctl start kestrel-backend.service
-          sudo systemctl restart nginx
+
+          # Restart the reverse proxy (like Nginx) if it exists.
+          sudo systemctl restart nginx || true
         '
-    secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET', 'DB_CONN_STRING_SECRET']
+    secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
+
 
 availableSecrets:
   secretManager:
     - versionName: projects/$PROJECT_ID/secrets/DB_CONNECTION_STRING/versions/latest
       env: 'DB_CONN_STRING_SECRET'
     - versionName: projects/$PROJECT_ID/secrets/_VM_INSTANCE_NAME/versions/latest
-      env: 'VM_INSTANCE_NAME_SECRET' 
+      env: 'VM_INSTANCE_NAME_SECRET'
     - versionName: projects/$PROJECT_ID/secrets/_VM_ZONE/versions/latest
       env: 'VM_ZONE_SECRET'
 
