@@ -94,21 +94,32 @@ builder.Services.AddAuthorization(auth =>
         .RequireAuthenticatedUser().Build());
 });
 
-// Add HTTPS redirection
-builder.Services.AddHttpsRedirection(options =>
+if (builder.Environment.IsDevelopment())
 {
-    options.HttpsPort = 7261;
-});
-
-// Configure Kestrel to use HTTPS
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenLocalhost(5259); // HTTP port
-    options.ListenLocalhost(7261, listenOptions =>
+    // Add HTTPS redirection service only in Development
+    builder.Services.AddHttpsRedirection(options =>
     {
-        listenOptions.UseHttps();
-    }); // HTTPS port
-});
+        options.HttpsPort = 7261;
+    });
+
+    // Configure Kestrel to use both HTTP and HTTPS only in Development
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenLocalhost(5259); // Your original HTTP port for local dev
+        options.ListenLocalhost(7261, listenOptions =>
+        {
+            listenOptions.UseHttps();
+        });
+    });
+}
+else
+{
+    // In Production, only configure Kestrel for HTTP on port 5000 for NGINX
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenLocalhost(5000);
+    });
+}
 
 var app = builder.Build();
 
@@ -116,9 +127,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
 }
 
-app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
+
 app.UseCors("AllowOrigin"); // Apply CORS policy
 app.UseAuthentication(); // Enable authentication
 app.UseAuthorization(); // Enable authorization
