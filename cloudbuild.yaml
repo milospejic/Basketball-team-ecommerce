@@ -77,13 +77,13 @@ steps:
       - |
         cd frontend
         
-        sed -i "s|__API_URL_PLACEHOLDER__|$$API_URL_SECRET|g" src/environments/environment.prod.ts
+        sed -i "s|__API_URL_PLACEHOLDER__|$$API_URL_SECRET|g" src/app/environments/environment.prod.ts
 
         npm install --legacy-peer-deps
         npm install -g @angular/cli
         ng build --configuration=production
 
-        ls -r
+        ls -r /dist
     secretEnv: ['API_URL_SECRET']
     waitFor: ['-']  # Start immediately, don't wait for previous steps
 
