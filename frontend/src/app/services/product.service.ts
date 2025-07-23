@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { CartProduct } from '../models/cartProduct';
 import { Product } from '../models/product';
 import { ProductUpdate } from '../models/productUpdate';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,19 +15,19 @@ export class ProductService {
   constructor(private http: HttpClient) { }
     
   getAllProductsFull() : Observable<any[]>{
-    return this.http.get<any[]>("https://localhost:7261/api/product");
+    return this.http.get<any[]>(`${environment.apiUrl}/api/product`);
   }
   getAllProducts(page: number, pageSize: number, sortBy: string, sortOrder: string): Observable<Product[]> {
-    const url = `https://localhost:7261/api/product?page=${page}&pageSize=${pageSize}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+    const url = `${environment.apiUrl}/api/product?page=${page}&pageSize=${pageSize}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
     return this.http.get<Product[]>(url);
   }
 
   getAllProductsByCategory(id: string): Observable<any[]>{
-    return this.http.get<any[]>("https://localhost:7261/api/product/category");
+    return this.http.get<any[]>(`${environment.apiUrl}/api/product/category`);
   }
 
   getProductById(id: string): Observable<Product> {
-    return this.http.get<Product>(`https://localhost:7261/api/product/${id}`);
+    return this.http.get<Product>(`${environment.apiUrl}/api/product/${id}`);
   }
 
   createProduct(product: ProductUpdate): Observable<any> {
@@ -34,14 +35,14 @@ export class ProductService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.post<any>('https://localhost:7261/api/product', product, { headers });
+    return this.http.post<any>(`${environment.apiUrl}/api/product`, product, { headers });
   }
   updateProduct(id: String ,product: ProductUpdate): Observable<any>{
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.put<any>(`https://localhost:7261/api/product/${id}`, product, {headers});
+    return this.http.put<any>(`${environment.apiUrl}/api/product/${id}`, product, {headers});
   }
 
   deleteProduct(id: string): Observable<any>{
@@ -49,7 +50,7 @@ export class ProductService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.delete<any>(`https://localhost:7261/api/product/${id}`, {headers});
+    return this.http.delete<any>(`${environment.apiUrl}/api/product/${id}`, {headers});
   }
 
   getProductsByAdminId(id: string): Observable<Product> {
@@ -57,7 +58,7 @@ export class ProductService {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${localStorage.getItem('token')}`
     });
-    return this.http.get<Product>(`https://localhost:7261/api/product/admin/${id}`, {headers });
+    return this.http.get<Product>(`${environment.apiUrl}/api/product/admin/${id}`, {headers });
   }
 
   addToCart(id: string){
@@ -88,7 +89,7 @@ export class ProductService {
   }
 
   searchProducts(query: string): Observable<Product[]> {
-    return this.http.get<Product[]>(`https://localhost:7261/api/product/search?query=${query}`);
+    return this.http.get<Product[]>(`${environment.apiUrl}/api/product/search?query=${query}`);
   }
 
   getCartItemAmount(productId: string): number {
