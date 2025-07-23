@@ -77,8 +77,6 @@ steps:
       - |
         cd frontend
         
-        sed -i "s|__API_URL_PLACEHOLDER__|$$API_URL_SECRET|g" src/app/environments/environment.prod.ts
-
         npm install --legacy-peer-deps
         npm install -g @angular/cli
         ng build --configuration=production
