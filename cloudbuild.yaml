@@ -32,7 +32,7 @@ steps:
           RestartSec=10
           User=www-data
           Environment=ASPNETCORE_ENVIRONMENT=Production
-          Environment=\"ConnectionStrings__BasketballDBConnection=$$DB_CONN_STRING_SECRET\"
+          Environment=\"ConnectionStrings__BasketballDBConnection=$DB_CONN_STRING_SECRET\"
           [Install]
           WantedBy=multi-user.target" | sudo tee /etc/systemd/system/kestrel-backend.service
           sudo systemctl daemon-reload
