@@ -80,21 +80,8 @@ steps:
         npm install --legacy-peer-deps
         npm install -g @angular/cli
         ng build --configuration=production
-    secretEnv: ['FRONTEND_BUCKET_NAME_SECRET']
+    secretEnv: ['FRONTEND_BUCKET_NAME_SECRET', 'LB_IP_SECRET']
     waitFor: ['-']  # Start immediately, don't wait for previous steps
-
-  - name: 'ubuntu'
-    id: 'Replace API URL Placeholder'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        # Find the main JS file and replace the placeholder with the secret value.
-        find frontend/dist/frontend/browser -type f -name "main*.js" -exec sed -i "s|__API_URL_PLACEHOLDER__|http://$$LB_IP_SECRET|g" {} +
-        echo "Replaced API URL placeholder using secret."
-    # Make the secret available as an environment variable to this step
-    secretEnv: ['LB_IP_SECRET']
-    waitFor: ['Build Frontend']
 
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Deploy Frontend'
@@ -108,7 +95,7 @@ steps:
         gsutil -m setmeta -h "Cache-Control:public,max-age=31536000" gs://$$FRONTEND_BUCKET_NAME_SECRET/**/*.css
         gsutil -m setmeta -h "Cache-Control:no-cache" gs://$$FRONTEND_BUCKET_NAME_SECRET/index.html
     secretEnv: ['FRONTEND_BUCKET_NAME_SECRET']
-    waitFor: ['Replace API URL Placeholder']
+    waitFor: ['Build Frontend']
 availableSecrets:
   secretManager:
     - versionName: projects/$PROJECT_ID/secrets/DB_CONNECTION_STRING/versions/latest
