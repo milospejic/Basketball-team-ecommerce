@@ -78,7 +78,7 @@ steps:
         cd frontend
         npm install --legacy-peer-deps
         npm install -g @angular/cli
-        ng build --configuration=production
+        ng build --configuration=production --base-href
     waitFor: ['-']  # Start immediately, don't wait for previous steps
 
   - name: 'ubuntu'
@@ -100,7 +100,7 @@ steps:
     args:
       - '-c'
       - |
-        gsutil -m rsync -r -d frontend/dist/frontend/ gs://$$FRONTEND_BUCKET_NAME_SECRET/
+        gsutil -m rsync -r -d frontend/dist/frontend/browser gs://$$FRONTEND_BUCKET_NAME_SECRET/
         
         gsutil -m setmeta -h "Cache-Control:public,max-age=31536000" gs://$$FRONTEND_BUCKET_NAME_SECRET/**/*.js
         gsutil -m setmeta -h "Cache-Control:public,max-age=31536000" gs://$$FRONTEND_BUCKET_NAME_SECRET/**/*.css
