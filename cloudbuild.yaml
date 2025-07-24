@@ -100,7 +100,7 @@ steps:
     args:
       - '-c'
       - |
-        gsutil -m rsync -r -d frontend/dist/frontend/browser gs://$$FRONTEND_BUCKET_NAME_SECRET/
+        gsutil -m rsync -r -d frontend/dist/frontend/ gs://$$FRONTEND_BUCKET_NAME_SECRET/
         
         gsutil -m setmeta -h "Cache-Control:public,max-age=31536000" gs://$$FRONTEND_BUCKET_NAME_SECRET/**/*.js
         gsutil -m setmeta -h "Cache-Control:public,max-age=31536000" gs://$$FRONTEND_BUCKET_NAME_SECRET/**/*.css
