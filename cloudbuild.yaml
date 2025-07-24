@@ -78,7 +78,7 @@ steps:
         cd frontend
         npm install --legacy-peer-deps
         npm install -g @angular/cli
-        ng build --configuration=production --base-href ./
+        ng build --configuration=production
     secretEnv: ['FRONTEND_BUCKET_NAME_SECRET']
     waitFor: ['-']  # Start immediately, don't wait for previous steps
 
