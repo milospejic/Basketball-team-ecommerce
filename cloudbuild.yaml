@@ -77,8 +77,8 @@ steps:
       - |
         cd frontend
         npm install --legacy-peer-deps
-        npm install -g @angular/cli
-        ng build --configuration=production
+        # npm install -g @angular/cli
+        ng build --configuration=production --base-href /
     waitFor: ['-']  # Start immediately, don't wait for previous steps
 
   - name: 'ubuntu'
