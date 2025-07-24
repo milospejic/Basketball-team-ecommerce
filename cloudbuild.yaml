@@ -89,7 +89,7 @@ steps:
       - '-c'
       - |
         # Find the main JS file and replace the placeholder with the secret value.
-        find frontend/dist -type f -name "main.*.js" -exec sed -i "s|__API_URL_PLACEHOLDER__|http://$$LB_IP_SECRET|g" {} +
+        find frontend/dist/frontend/browser -type f -name "main.*.js" -exec sed -i "s|__API_URL_PLACEHOLDER__|http://$$LB_IP_SECRET|g" {} +
         echo "Replaced API URL placeholder using secret."
     # Make the secret available as an environment variable to this step
     secretEnv: ['LB_IP_SECRET']
