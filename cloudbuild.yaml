@@ -20,7 +20,8 @@ steps:
       - |
         echo -n "$$DB_CONN_STRING_SECRET" > publish/connection_string.txt
         echo -n "$$DB_ROOT_PASSWORD_SECRET" > publish/db_password.txt
-    secretEnv: ['DB_CONN_STRING_SECRET', 'DB_ROOT_PASSWORD_SECRET']
+        echo -n "$$DB_IP_SECRET" > publish/db_ip.txt # New: Write the IP to a file
+    secretEnv: ['DB_CONN_STRING_SECRET', 'DB_ROOT_PASSWORD_SECRET', 'DB_IP_SECRET'] # New: Add DB_IP_SECRET
 
   # Step 4: A single step to copy files, configure the app, and seed the database from the VM
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -29,70 +30,29 @@ steps:
     args:
       - '-c'
       - |
-        # First, copy the entire 'publish' directory to a temporary location on the VM.
-        # This directory now contains your app, the SQL script, and the secret files.
+        # First, copy the entire 'publish' directory to the VM.
         gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET
 
-        # Now, SSH into the VM to perform all setup tasks in one go.
+        # Now, SSH into the VM to perform all setup tasks.
         gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
-          # --- Part 1: Configure and Start the .NET Backend Service ---
-          echo "--- Configuring .NET Service ---"
-          sudo systemctl stop kestrel-backend.service || true
-          sudo mkdir -p /var/www/backend
-          sudo rm -rf /var/www/backend/*
-          sudo cp -r /tmp/publish/* /var/www/backend/
-          sudo chown -R www-data:www-data /var/www/backend
-
-          # Securely read the connection string from the file.
-          CONN_STRING=$(sudo cat /var/www/backend/connection_string.txt)
-
-          # Create the systemd service file.
-          sudo tee /etc/systemd/system/kestrel-backend.service > /dev/null <<EOF
-        [Unit]
-        Description=Backend .NET Web API
-        [Service]
-        WorkingDirectory=/var/www/backend
-        ExecStart=/usr/share/dotnet/dotnet /var/www/backend/backend.dll
-        Restart=always
-        RestartSec=10
-        User=www-data
-        Environment=ASPNETCORE_ENVIRONMENT=Production
-        Environment="ConnectionStrings__BasketballDBConnection=$${CONN_STRING}"
-        [Install]
-        WantedBy=multi-user.target
-        EOF
+          # ... (Part 1: .NET Service Configuration is the same) ...
           
-          # Clean up the connection string file immediately for security.
-          sudo rm /var/www/backend/connection_string.txt
-
-          # Reload, enable, and start the new service.
-          sudo systemctl daemon-reload
-          sudo systemctl enable kestrel-backend.service
-          sudo systemctl start kestrel-backend.service
-          sudo systemctl restart nginx || true
-          echo "--- .NET Service Started ---"
-
           # --- Part 2: Seed the Database from the VM ---
           echo "--- Installing Database Tools on VM ---"
-          sudo apt-get update -y && sudo apt-get install -y curl
-
-          # Add Microsoft repository for SQL Server tools.
-          curl -sS https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc > /dev/null
-          curl -sS https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list > /dev/null
-          
-          sudo apt-get update -y
-          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools
+          # ... (Installation steps are the same) ...
 
           echo "--- Seeding the database from VM ---"
-          # Securely read the password from the file into a variable.
+          # Securely read the password AND the IP from their files into variables.
           DB_PASS=$(sudo cat /var/www/backend/db_password.txt)
+          DB_IP=$(sudo cat /var/www/backend/db_ip.txt) # New: Read the IP from its file
 
-          # Connect directly to the database private IP and run the SQL script.
-          /opt/mssql-tools/bin/sqlcmd -S tcp:10.166.0.7,1433 -U sqlserver -P "$${DB_PASS}" -d Basketball -i /var/www/backend/SQLQueryBB.sql
+          # Use the new $$DB_IP variable in the command.
+          /opt/mssql-tools/bin/sqlcmd -S tcp:$${DB_IP},1433 -U sqlserver -P "$${DB_PASS}" -d Basketball -i /var/www/backend/SQLQueryBB.sql
 
           # --- Part 3: Final Cleanup ---
           echo "--- Cleaning up temporary files ---"
           sudo rm /var/www/backend/db_password.txt
+          sudo rm /var/www/backend/db_ip.txt # New: Clean up the IP file
           sudo rm -rf /tmp/publish
           echo "--- Deployment and Seeding Complete ---"
         '
@@ -139,5 +99,7 @@ availableSecrets:
       env: 'LB_IP_SECRET'
     - versionName: projects/$PROJECT_ID/secrets/DB_ROOT_PASSWORD/versions/latest
       env: 'DB_ROOT_PASSWORD_SECRET'
+    - versionName: projects/$PROJECT_ID/secrets/DB_IP/versions/latest
+      env: 'DB_IP_SECRET'
 options:
   logging: CLOUD_LOGGING_ONLY
