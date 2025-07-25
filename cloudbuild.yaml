@@ -85,7 +85,7 @@ steps:
         curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.10.1/cloud-sql-proxy.linux.amd64
         chmod +x cloud-sql-proxy
         # Start the proxy in the background to connect to the private IP of the SQL instance.
-        ./cloud-sql-proxy --private-ip $$DB_INSTANCE_CONN_NAME_SECRET &
+        ./cloud-sql-proxy $$DB_INSTANCE_CONN_NAME_SECRET &
 
         # Give the proxy a moment to initialize.
         sleep 10
