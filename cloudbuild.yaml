@@ -74,24 +74,35 @@ steps:
     args:
       - '-c'
       - |
-        # Download and start the Cloud SQL Auth Proxy in the background.
-        # The proxy enables secure connection to the Cloud SQL private IP.
-        wget https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.10.1/cloud-sql-proxy.linux.amd64 -O cloud-sql-proxy
+        # Exit immediately if a command exits with a non-zero status.
+        set -e
+
+        echo "--- Installing Database Tools ---"
+        # The gcloud image is based on Debian. We need to install curl first.
+        apt-get update -y && apt-get install -y curl
+
+        # Use curl to download and start the Cloud SQL Auth Proxy.
+        curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.10.1/cloud-sql-proxy.linux.amd64
         chmod +x cloud-sql-proxy
+        # Start the proxy in the background to connect to the private IP of the SQL instance.
         ./cloud-sql-proxy --private-ip $$DB_INSTANCE_CONN_NAME_SECRET &
-        
-        # Wait a few seconds for the proxy to establish a connection.
+
+        # Give the proxy a moment to initialize.
         sleep 10
+
+        echo "--- Installing Microsoft SQL Server command-line tools (sqlcmd) ---"
+        # Add the Microsoft package repository for Debian 11 (Bullseye), which the gcloud image is based on.
+        curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/trusted.gpg.d/microsoft.asc
+        curl https://packages.microsoft.com/config/debian/11/prod.list | tee /etc/apt/sources.list.d/mssql-release.list
         
-        # Install Microsoft SQL Server command-line tools.
-        apt-get update -y && apt-get install -y curl gnupg
-        curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
-        curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list
+        # Install the tools. The ACCEPT_EULA flag is required.
         apt-get update -y
         ACCEPT_EULA=Y apt-get install -y mssql-tools
-        
-        # Run the SQL script against the database through the proxy.
+
+        echo "--- Seeding the database ---"
+        # Run the SQL script. The tools are installed in /opt/mssql-tools/bin/
         /opt/mssql-tools/bin/sqlcmd -S tcp:127.0.0.1,1433 -U sqlserver -P "$$DB_ROOT_PASSWORD_SECRET" -d Basketball -i SQLQueryBB.sql
+        echo "--- Database seeding complete ---"
     secretEnv: ['DB_INSTANCE_CONN_NAME_SECRET', 'DB_ROOT_PASSWORD_SECRET']
     waitFor: ['Configure and Restart'] # Run this step after the backend is deployed.
  # Frontend Job (runs in parallel with backend)
