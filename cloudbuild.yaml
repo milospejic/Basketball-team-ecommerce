@@ -1,63 +1,52 @@
 steps:
+  # Step 1: Build the .NET application
   - name: 'mcr.microsoft.com/dotnet/sdk:8.0'
     id: 'Build'
     entrypoint: 'dotnet'
     args: ['publish', 'backend/backend/backend.csproj', '-c', 'Release', '-o', 'publish']
 
+  # Step 2: Copy the SQL script into the publish directory so it can be sent to the VM
   - name: 'bash'
-    id: 'Prepare Secret File'
+    id: 'Prepare SQL Script'
     entrypoint: 'bash'
-    args: ['-c', 'echo -n "$$DB_CONN_STRING_SECRET" > publish/connection_string.txt']
-    secretEnv: ['DB_CONN_STRING_SECRET']
+    args: ['-c', 'cp SQLQueryBB.sql publish/']
 
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Copy Files'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        'gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET'
-        # 1. Update package lists
-        sudo apt-get update -y
-
-        # 2. Install curl, if it's not already there
-        sudo apt-get install -y curl
-
-        # 3. Add the Microsoft package repository for mssql-tools
-        curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-        curl https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-
-        # 4. Install the mssql-tools and unixODBC developer package
-        sudo apt-get update -y
-        sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
-
-        # 5. Run sqlcmd to test the connection
-        #    The path for sqlcmd is /opt/mssql-tools/bin/
-        /opt/mssql-tools/bin/sqlcmd -S tcp:10.166.0.7,1433 -U sqlserver -P "$$DB_ROOT_PASSWORD_SECRET" -d Basketball -i SQLQueryBB.sql
-    secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
-
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Configure and Restart'
+  # Step 3: Securely prepare files containing the secrets
+  - name: 'bash'
+    id: 'Prepare Secret Files'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
+        echo -n "$$DB_CONN_STRING_SECRET" > publish/connection_string.txt
+        echo -n "$$DB_ROOT_PASSWORD_SECRET" > publish/db_password.txt
+    secretEnv: ['DB_CONN_STRING_SECRET', 'DB_ROOT_PASSWORD_SECRET']
+
+  # Step 4: A single step to copy files, configure the app, and seed the database from the VM
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Deploy-Configure-and-Seed'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # First, copy the entire 'publish' directory to a temporary location on the VM.
+        # This directory now contains your app, the SQL script, and the secret files.
+        gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET
+
+        # Now, SSH into the VM to perform all setup tasks in one go.
         gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
-          # Stop the service before making changes. "|| true" ignores errors if the service is not already running.
+          # --- Part 1: Configure and Start the .NET Backend Service ---
+          echo "--- Configuring .NET Service ---"
           sudo systemctl stop kestrel-backend.service || true
-
-          # Set up the application directory
           sudo mkdir -p /var/www/backend
-          # It is best practice to clean out old files before copying new ones.
           sudo rm -rf /var/www/backend/*
           sudo cp -r /tmp/publish/* /var/www/backend/
           sudo chown -R www-data:www-data /var/www/backend
 
-          # Securely read the connection string from the file into a shell variable.
+          # Securely read the connection string from the file.
           CONN_STRING=$(sudo cat /var/www/backend/connection_string.txt)
 
-          # Use a "here document" (cat <<EOF) to safely create the systemd service file.
-          # This is the most reliable way to write multi-line text to a file in a script.
+          # Create the systemd service file.
           sudo tee /etc/systemd/system/kestrel-backend.service > /dev/null <<EOF
         [Unit]
         Description=Backend .NET Web API
@@ -72,57 +61,43 @@ steps:
         [Install]
         WantedBy=multi-user.target
         EOF
-
-          # For security, clean up the connection string file now that it has been loaded into the service definition.
+          
+          # Clean up the connection string file immediately for security.
           sudo rm /var/www/backend/connection_string.txt
 
-          # Reload systemd to recognize the new/changed service file, then enable and start the service.
+          # Reload, enable, and start the new service.
           sudo systemctl daemon-reload
           sudo systemctl enable kestrel-backend.service
           sudo systemctl start kestrel-backend.service
-
-          # Restart the reverse proxy (like Nginx) if it exists.
           sudo systemctl restart nginx || true
+          echo "--- .NET Service Started ---"
+
+          # --- Part 2: Seed the Database from the VM ---
+          echo "--- Installing Database Tools on VM ---"
+          sudo apt-get update -y && sudo apt-get install -y curl
+
+          # Add Microsoft repository for SQL Server tools.
+          curl -sS https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc > /dev/null
+          curl -sS https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list > /dev/null
+          
+          sudo apt-get update -y
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools
+
+          echo "--- Seeding the database from VM ---"
+          # Securely read the password from the file into a variable.
+          DB_PASS=$(sudo cat /var/www/backend/db_password.txt)
+
+          # Connect directly to the database private IP and run the SQL script.
+          /opt/mssql-tools/bin/sqlcmd -S tcp:10.166.0.7,1433 -U sqlserver -P "$${DB_PASS}" -d Basketball -i /var/www/backend/SQLQueryBB.sql
+
+          # --- Part 3: Final Cleanup ---
+          echo "--- Cleaning up temporary files ---"
+          sudo rm /var/www/backend/db_password.txt
+          sudo rm -rf /tmp/publish
+          echo "--- Deployment and Seeding Complete ---"
         '
     secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
- # Seed DB
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Seed Database'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        # Exit immediately if a command exits with a non-zero status.
-        set -e
-
-        echo "--- Installing Database Tools ---"
-        # The gcloud image is based on Debian. We need to install curl first.
-        apt-get update -y && apt-get install -y curl
-
-        # Use curl to download and start the Cloud SQL Auth Proxy.
-        curl -o cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.10.1/cloud-sql-proxy.linux.amd64
-        chmod +x cloud-sql-proxy
-        # Start the proxy in the background to connect to the private IP of the SQL instance.
-        ./cloud-sql-proxy $$DB_INSTANCE_CONN_NAME_SECRET &
-
-        # Give the proxy a moment to initialize.
-        sleep 10
-
-        echo "--- Installing Microsoft SQL Server command-line tools (sqlcmd) ---"
-        # Add the Microsoft package repository for Debian 11 (Bullseye), which the gcloud image is based on.
-        curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/trusted.gpg.d/microsoft.asc
-        curl https://packages.microsoft.com/config/debian/11/prod.list | tee /etc/apt/sources.list.d/mssql-release.list
-        
-        # Install the tools. The ACCEPT_EULA flag is required.
-        apt-get update -y
-        ACCEPT_EULA=Y apt-get install -y mssql-tools
-
-        echo "--- Seeding the database ---"
-        # Run the SQL script. The tools are installed in /opt/mssql-tools/bin/
-        /opt/mssql-tools/bin/sqlcmd -S tcp:127.0.0.1,1433 -U sqlserver -P "$$DB_ROOT_PASSWORD_SECRET" -d Basketball -i SQLQueryBB.sql
-        echo "--- Database seeding complete ---"
-    secretEnv: ['DB_INSTANCE_CONN_NAME_SECRET', 'DB_ROOT_PASSWORD_SECRET']
-    waitFor: ['Configure and Restart'] # Run this step after the backend is deployed.
+    waitFor: ['Prepare Secret Files', 'Prepare SQL Script', 'Build']
  # Frontend Job (runs in parallel with backend)
   - name: 'node:22'
     id: 'Build Frontend'
