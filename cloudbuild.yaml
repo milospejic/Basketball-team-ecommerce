@@ -15,7 +15,25 @@ steps:
     entrypoint: 'bash'
     args:
       - '-c'
-      - 'gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET'
+      - |
+        'gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET'
+        # 1. Update package lists
+        sudo apt-get update -y
+
+        # 2. Install curl, if it's not already there
+        sudo apt-get install -y curl
+
+        # 3. Add the Microsoft package repository for mssql-tools
+        curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+        curl https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+
+        # 4. Install the mssql-tools and unixODBC developer package
+        sudo apt-get update -y
+        sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
+
+        # 5. Run sqlcmd to test the connection
+        #    The path for sqlcmd is /opt/mssql-tools/bin/
+        /opt/mssql-tools/bin/sqlcmd -S tcp:10.166.0.7,1433 -U sqlserver -P "$$DB_ROOT_PASSWORD_SECRET" -d Basketball -i SQLQueryBB.sql
     secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
 
   - name: 'gcr.io/cloud-builders/gcloud'
