@@ -30,39 +30,39 @@ steps:
     args:
       - '-c'
       - |
-        # First, copy the entire 'publish' directory to the VM.
+        # First, copy the entire 'publish' directory to the VM's temporary directory.
         gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET
 
-        # Now, SSH into the VM to perform all setup tasks.
-        gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
+        # Now, SSH into the VM to perform all setup tasks as a single command.
+        gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command="
+          set -e # Exit immediately if a command exits with a non-zero status.
+          
+          echo '--- Installing prerequisites ---'
           sudo apt-get update -y
-
-          # 2. Install curl, if it's not already there
           sudo apt-get install -y curl
 
-          # 3. Add the Microsoft package repository for mssql-tools
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-          curl https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-
-          # 4. Install the mssql-tools and unixODBC developer package
+          # Add the Microsoft package repository for mssql-tools if not already present.
+          if [ ! -f /etc/apt/sources.list.d/mssql-release.list ]; then
+            curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+            curl https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          fi
+          
           sudo apt-get update -y
           sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
 
-          echo "--- Seeding the database from VM ---"
-          # Securely read the password AND the IP from their files into variables.
-          DB_PASS=$(sudo cat /var/www/backend/db_password.txt)
-          DB_IP=$(sudo cat /var/www/backend/db_ip.txt) # New: Read the IP from its file
+          echo '--- Seeding the database from VM ---'
+          # Securely read the password and IP from the files copied earlier.
+          DB_PASS=\$(sudo cat /tmp/publish/db_password.txt)
+          DB_IP=\$(sudo cat /tmp/publish/db_ip.txt)
 
-          # Use the new $$DB_IP variable in the command.
-          /opt/mssql-tools/bin/sqlcmd -S tcp:$${DB_IP},1433 -U sqlserver -P "$${DB_PASS}" -d Basketball -i /var/www/backend/SQLQueryBB.sql
+          # Use the variables to connect to the database and run the script.
+          /opt/mssql-tools/bin/sqlcmd -S tcp:\$DB_IP,1433 -U sqlserver -P \"\$DB_PASS\" -d Basketball -i /tmp/publish/SQLQueryBB.sql
 
-          # --- Part 3: Final Cleanup ---
-          echo "--- Cleaning up temporary files ---"
-          sudo rm /var/www/backend/db_password.txt
-          sudo rm /var/www/backend/db_ip.txt # New: Clean up the IP file
+          echo '--- Cleaning up temporary files ---'
           sudo rm -rf /tmp/publish
-          echo "--- Deployment and Seeding Complete ---"
-        '
+
+          echo '--- Deployment and Seeding Complete ---'
+        "
     secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
     waitFor: ['Prepare Secret Files', 'Prepare SQL Script', 'Build']
  # Frontend Job (runs in parallel with backend)
