@@ -10,7 +10,6 @@ steps:
     id: 'Prepare SQL Script'
     entrypoint: 'bash'
     args: ['-c', 'cp SQLQueryBB.sql publish/']
-    waitFor: ['Build']
 
   # Step 3: Securely prepare files containing the secrets
   - name: 'bash'
@@ -23,55 +22,49 @@ steps:
         echo -n "$$DB_ROOT_PASSWORD_SECRET" > publish/db_password.txt
         echo -n "$$DB_IP_SECRET" > publish/db_ip.txt # New: Write the IP to a file
     secretEnv: ['DB_CONN_STRING_SECRET', 'DB_ROOT_PASSWORD_SECRET', 'DB_IP_SECRET'] # New: Add DB_IP_SECRET
-    waitFor: ['Prepare SQL Script']
 
   # Step 4: A single step to copy files, configure the app, and seed the database from the VM
   - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Deploy-Configure-and-Seed'
     entrypoint: 'bash'
     args:
-      - -c
+      - '-c'
       - |
-        # First, copy the entire 'publish' directory to a temporary location on the VM.
+        # First, copy the entire 'publish' directory to the VM.
         gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET
 
-        # Now, prepare the entire script as a single string to pass to SSH.
-        # This prevents issues with quoting and command parsing.
-        SCRIPT_TO_RUN="
-          set -e
-          echo '--- Moving application files ---'
-          sudo mkdir -p /var/www/backend
-          sudo mv /tmp/publish/* /var/www/backend/
+        # Now, SSH into the VM to perform all setup tasks.
+        gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
+          sudo apt-get update -y
 
-          echo '--- Installing Database Tools on VM ---'
-          if ! command -v /opt/mssql-tools/bin/sqlcmd &> /dev/null; then
-              echo 'sqlcmd not found. Installing now...'
-              # Add Microsoft's official package repository for Debian as root
-              sudo curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
-              sudo curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list > /dev/null
-              sudo apt-get update
-              sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
-          else
-              echo 'sqlcmd is already installed.'
-          fi
+          # 2. Install curl, if it's not already there
+          sudo apt-get install -y curl
 
-          echo '--- Seeding the database from VM ---'
-          DB_PASS=\$(sudo cat /var/www/backend/db_password.txt)
-          DB_IP=\$(sudo cat /var/www/backend/db_ip.txt)
+          # 3. Add the Microsoft package repository for mssql-tools
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
+          curl https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
 
-          /opt/mssql-tools/bin/sqlcmd -S tcp:\$DB_IP,1433 -U sqlserver -P \"\$DB_PASS\" -d Basketball -i /var/www/backend/SQLQueryBB.sql
+          # 4. Install the mssql-tools and unixODBC developer package
+          sudo apt-get update -y
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
 
-          echo '--- Cleaning up temporary files ---'
+          echo "--- Seeding the database from VM ---"
+          # Securely read the password AND the IP from their files into variables.
+          DB_PASS=$(sudo cat /var/www/backend/db_password.txt)
+          DB_IP=$(sudo cat /var/www/backend/db_ip.txt) # New: Read the IP from its file
+
+          # Use the new $$DB_IP variable in the command.
+          /opt/mssql-tools/bin/sqlcmd -S tcp:$${DB_IP},1433 -U sqlserver -P "$${DB_PASS}" -d Basketball -i /var/www/backend/SQLQueryBB.sql
+
+          # --- Part 3: Final Cleanup ---
+          echo "--- Cleaning up temporary files ---"
           sudo rm /var/www/backend/db_password.txt
-          sudo rm /var/www/backend/db_ip.txt
+          sudo rm /var/www/backend/db_ip.txt # New: Clean up the IP file
           sudo rm -rf /tmp/publish
-          echo '--- Deployment and Seeding Complete ---'
-        "
-
-        # Execute the entire script in a single SSH command
-        gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command="\$SCRIPT_TO_RUN"
+          echo "--- Deployment and Seeding Complete ---"
+        '
     secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
-    waitFor: ['Prepare Secret Files']
+    waitFor: ['Prepare Secret Files', 'Prepare SQL Script', 'Build']
  # Frontend Job (runs in parallel with backend)
   - name: 'node:22'
     id: 'Build Frontend'
