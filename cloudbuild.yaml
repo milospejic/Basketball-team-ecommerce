@@ -10,6 +10,7 @@ steps:
     id: 'Prepare SQL Script'
     entrypoint: 'bash'
     args: ['-c', 'cp SQLQueryBB.sql publish/']
+    waitFor: ['Build']
 
   # Step 3: Securely prepare files containing the secrets
   - name: 'bash'
@@ -22,6 +23,7 @@ steps:
         echo -n "$$DB_ROOT_PASSWORD_SECRET" > publish/db_password.txt
         echo -n "$$DB_IP_SECRET" > publish/db_ip.txt # New: Write the IP to a file
     secretEnv: ['DB_CONN_STRING_SECRET', 'DB_ROOT_PASSWORD_SECRET', 'DB_IP_SECRET'] # New: Add DB_IP_SECRET
+    waitFor: ['Prepare SQL Script']
 
   # Step 4: A single step to copy files, configure the app, and seed the database from the VM
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -57,7 +59,7 @@ steps:
           echo "--- Deployment and Seeding Complete ---"
         '
     secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
-    waitFor: ['Prepare Secret Files', 'Prepare SQL Script', 'Build']
+    waitFor: ['Prepare Secret Files']
  # Frontend Job (runs in parallel with backend)
   - name: 'node:22'
     id: 'Build Frontend'
