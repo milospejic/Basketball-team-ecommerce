@@ -30,53 +30,46 @@ steps:
     id: 'Deploy-Configure-and-Seed'
     entrypoint: 'bash'
     args:
-      - '-c'
+      - -c
       - |
         # First, copy the entire 'publish' directory to a temporary location on the VM.
         gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET
 
-        # Now, SSH into the VM to perform all setup tasks.
-        gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
-          # --- Part 1: Move Files and Set Up .NET Service ---
-          echo "--- Moving application files ---"
-          # Create the application directory if it doesn''t exist
+        # Now, prepare the entire script as a single string to pass to SSH.
+        # This prevents issues with quoting and command parsing.
+        SCRIPT_TO_RUN="
+          set -e
+          echo '--- Moving application files ---'
           sudo mkdir -p /var/www/backend
-          # Move the published files from the temp location to the final destination
           sudo mv /tmp/publish/* /var/www/backend/
-          
-          # ... (Your .NET service configuration can go here if needed) ...
 
-          # --- Part 2: Install Database Tools and Seed the Database ---
-          echo "--- Installing Database Tools on VM ---"
-          # Check if sqlcmd is already installed to avoid re-installing every time
-          if ! command -v /opt/mssql-tools/bin/sqlcmd &> /dev/null
-          then
-              echo "sqlcmd not found. Installing now..."
-              # Add Microsoft's official package repository for Debian
-              curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-              curl https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+          echo '--- Installing Database Tools on VM ---'
+          if ! command -v /opt/mssql-tools/bin/sqlcmd &> /dev/null; then
+              echo 'sqlcmd not found. Installing now...'
+              # Add Microsoft's official package repository for Debian as root
+              sudo curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+              sudo curl -fsSL https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list > /dev/null
               sudo apt-get update
-              # Install the MSSQL tools non-interactively
               sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
           else
-              echo "sqlcmd is already installed."
+              echo 'sqlcmd is already installed.'
           fi
 
-          echo "--- Seeding the database from VM ---"
-          # Securely read the password AND the IP from their files into variables.
-          DB_PASS=$(sudo cat /var/www/backend/db_password.txt)
-          DB_IP=$(sudo cat /var/www/backend/db_ip.txt)
+          echo '--- Seeding the database from VM ---'
+          DB_PASS=\$(sudo cat /var/www/backend/db_password.txt)
+          DB_IP=\$(sudo cat /var/www/backend/db_ip.txt)
 
-          # Use the variables in the sqlcmd command.
-          /opt/mssql-tools/bin/sqlcmd -S tcp:$${DB_IP},1433 -U sqlserver -P "$${DB_PASS}" -d Basketball -i /var/www/backend/SQLQueryBB.sql
+          /opt/mssql-tools/bin/sqlcmd -S tcp:\$DB_IP,1433 -U sqlserver -P \"\$DB_PASS\" -d Basketball -i /var/www/backend/SQLQueryBB.sql
 
-          # --- Part 3: Final Cleanup ---
-          echo "--- Cleaning up temporary files ---"
+          echo '--- Cleaning up temporary files ---'
           sudo rm /var/www/backend/db_password.txt
           sudo rm /var/www/backend/db_ip.txt
           sudo rm -rf /tmp/publish
-          echo "--- Deployment and Seeding Complete ---"
-        '
+          echo '--- Deployment and Seeding Complete ---'
+        "
+
+        # Execute the entire script in a single SSH command
+        gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command="\$SCRIPT_TO_RUN"
     secretEnv: ['VM_INSTANCE_NAME_SECRET', 'VM_ZONE_SECRET']
     waitFor: ['Prepare Secret Files']
  # Frontend Job (runs in parallel with backend)
