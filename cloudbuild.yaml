@@ -30,23 +30,59 @@ steps:
     args:
       - '-c'
       - |
-        # First, copy the entire 'publish' directory to the VM.
+        # First, copy the entire 'publish' directory to a temporary location on the VM.
+        # This directory now contains your app, the SQL script, and the secret files.
         gcloud compute scp --recurse publish/ $$VM_INSTANCE_NAME_SECRET:/tmp/ --zone=$$VM_ZONE_SECRET
 
-        # Now, SSH into the VM to perform all setup tasks.
+        # Now, SSH into the VM to perform all setup tasks in one go.
         gcloud compute ssh $$VM_INSTANCE_NAME_SECRET --zone=$$VM_ZONE_SECRET --command='
-          echo '--- Installing prerequisites ---'
-          sudo apt-get update -y
-          sudo apt-get install -y curl
+          # --- Part 1: Configure and Start the .NET Backend Service ---
+          echo "--- Configuring .NET Service ---"
+          sudo systemctl stop kestrel-backend.service || true
+          sudo mkdir -p /var/www/backend
+          sudo rm -rf /var/www/backend/*
+          sudo cp -r /tmp/publish/* /var/www/backend/
+          sudo chown -R www-data:www-data /var/www/backend
 
-          # Add the Microsoft package repository for mssql-tools if not already present.
-          if [ ! -f /etc/apt/sources.list.d/mssql-release.list ]; then
-            curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-            curl https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-          fi
+          # Securely read the connection string from the file.
+          CONN_STRING=$(sudo cat /var/www/backend/connection_string.txt)
+
+          # Create the systemd service file.
+          sudo tee /etc/systemd/system/kestrel-backend.service > /dev/null <<EOF
+        [Unit]
+        Description=Backend .NET Web API
+        [Service]
+        WorkingDirectory=/var/www/backend
+        ExecStart=/usr/share/dotnet/dotnet /var/www/backend/backend.dll
+        Restart=always
+        RestartSec=10
+        User=www-data
+        Environment=ASPNETCORE_ENVIRONMENT=Production
+        Environment="ConnectionStrings__BasketballDBConnection=$${CONN_STRING}"
+        [Install]
+        WantedBy=multi-user.target
+        EOF
+          
+          # Clean up the connection string file immediately for security.
+          sudo rm /var/www/backend/connection_string.txt
+
+          # Reload, enable, and start the new service.
+          sudo systemctl daemon-reload
+          sudo systemctl enable kestrel-backend.service
+          sudo systemctl start kestrel-backend.service
+          sudo systemctl restart nginx || true
+          echo "--- .NET Service Started ---"
+
+          # --- Part 2: Seed the Database from the VM ---
+          echo "--- Installing Database Tools on VM ---"
+          sudo apt-get update -y && sudo apt-get install -y curl
+
+          # Add Microsoft repository for SQL Server tools.
+          curl -sS https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc > /dev/null
+          curl -sS https://packages.microsoft.com/config/debian/12/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list > /dev/null
           
           sudo apt-get update -y
-          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools unixodbc-dev
+          sudo ACCEPT_EULA=Y apt-get install -y mssql-tools
 
           echo "--- Seeding the database from VM ---"
           # Securely read the password AND the IP from their files into variables.
